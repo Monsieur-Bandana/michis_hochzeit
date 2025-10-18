@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Herzlichen Glückwunsch!</title>
+
+    <!-- CSS-Datei verlinken -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="content">
+      <h1 id="title_animation"></h1>
+      <div class="flexbox">
+        <div class="couple">
+          <img id="michi" src="michi.png" alt="Description of the image" />
+          <img id="valencia" src="bride.png" alt="Description of the image" />
+        </div>
+
+        <div class="_button" id="flyInBtn"></div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="background" id="church"></div>
+      <div class="background" id="europe"></div>
+      <div class="background" id="wuerzburg"></div>
+      <div class="background" id="questroom"></div>
+    </div>
+    <script>
+      let index = 0;
+      const speed = 100; // ms zwischen Buchstaben
+
+      function typeWriter(text) {
+        const element = document.getElementById("title_animation");
+        element.textContent = ""; // vorherigen Text löschen
+        let index = 0;
+        function type() {
+          if (index < text.length) {
+            element.textContent += text.charAt(index);
+            index++;
+            setTimeout(type, speed);
+          }
+        }
+
+        type(); // starten
+      }
+
+      window.onload = () => typeWriter("Lieber Michi");
+
+      const button = document.getElementById("flyInBtn");
+      const boxes = document.querySelectorAll(".background");
+      var counter = 0;
+      var bkg;
+      button.addEventListener("click", () => {
+        switch (counter) {
+          case 0:
+            typeWriter("Wenn du das hier liest");
+            break;
+          case 1:
+            typeWriter("hat mit der Hochzeit alles gut geklappt");
+            bkg = document.getElementById("church");
+            bkg.classList.toggle("active");
+            document.getElementById("valencia").style.display = "block";
+            break;
+          case 2:
+            typeWriter("herzlichen Glückwunsch!");
+            break;
+          case 3:
+            typeWriter("Genießt eure gemeinsame Reise durch Europa");
+            bkg = document.getElementById("europe");
+            bkg.classList.toggle("active");
+            break;
+          case 4:
+            typeWriter("und vor allem Würzburg");
+            bkg = document.getElementById("wuerzburg");
+            bkg.classList.toggle("active");
+            break;
+          case 5:
+            typeWriter("hier ein kleiner Zuschuss für eure Reise");
+            bkg = document.getElementById("questroom");
+            bkg.classList.toggle("active");
+            button.style.display = "none";
+            break;
+          default:
+            break;
+        }
+
+        counter += 1;
+      });
+    </script>
+  </body>
+</html>
