@@ -25,19 +25,26 @@ import { sound } from "@pixi/sound";
     { alias: "bachelor", src: "assets/bachelor.png" },
     { alias: "weiter", src: "assets/Weiter.png" },
     { alias: "fabrik", src: "assets/fabrik.png" },
+    { alias: "schatz", src: "assets/schatz.png" },
+    { alias: "thanos", src: "assets/thanos.png" },
+    { alias: "bowser", src: "assets/bowser.mp3" },
   ]);
 
   const right = "right";
   const left = "left";
   var numberOfLifes = 3;
-  var rec_counter = 0;
+  var cur_challenge = 1;
   var currentAnswerStatus = false;
   var curr_enemy;
 
   // Soundtrack
   const audioBuffer = Assets.get("soundtrack");
   sound.add("background", audioBuffer);
-  sound.play("background", { loop: true });
+  sound.play("background", { loop: true, volume: 0.3 });
+
+  // Bowserlachen
+  const audioBuffer2 = Assets.get("bowser");
+  sound.add("villain", audioBuffer2);
 
   // Michi
   const michi = new Sprite(Assets.get("michi"));
@@ -91,6 +98,7 @@ import { sound } from "@pixi/sound";
     });
   }
 
+  // generiert die Antwortmöglichkeiten
   function createText(text, h) {
     const text1 = new BitmapText({
       text: text,
@@ -107,6 +115,7 @@ import { sound } from "@pixi/sound";
     return text1;
   }
 
+  // erzeugt eine Sterbeanimation der Gegner
   async function deathAnimation(el) {
     app.ticker.add((time) => {
       new Promise((resolve) => {
@@ -117,9 +126,10 @@ import { sound } from "@pixi/sound";
     });
   }
 
+  // diese Funktion leitet die nächste Runde ein, wenn
+  // Frage richtig beantwortet
   async function winFunction() {
     // Alle Elemente außer "michi" aus der Stage entfernen
-
     return new Promise(async (resolve) => {
       if (curr_enemy != null) {
         await deathAnimation(curr_enemy);
@@ -142,10 +152,42 @@ import { sound } from "@pixi/sound";
   }
 
   async function restartfunction() {
+    // Bereit Button
+    const thanos = new Sprite(Assets.get("thanos"));
+    thanos.anchor.set(0.5);
+    thanos.scale.set(0.2);
+    thanos.y = app.screen.height / 2;
+    thanos.x = app.screen.width / 2;
+    app.stage.addChild(thanos);
+
+    sound.play("villain", { loop: false });
+
+    function scaleUp(sprite, targetScale = 2, speed = 0.1) {
+      return new Promise((resolve) => {
+        app.ticker.add(function grow() {
+          sprite.scale.x += speed;
+          sprite.scale.y += speed;
+          if (sprite.scale.x >= targetScale) {
+            sprite.scale.set(targetScale);
+            app.ticker.remove(grow);
+            resolve();
+          }
+        });
+      });
+    }
+
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 500);
+    });
+    // Verwendung:
+    await scaleUp(thanos, 10, 0.06);
+
     numberOfLifes = 3;
     return await new Promise(async (resolve) => {
       await new Promise((resolve) => {
-        showText("Das war dein letztes Leben!", true);
+        showText("Das war dein letztes Leben!", false, 2, "white");
         setTimeout(() => {
           resolve();
         }, 1500);
@@ -199,11 +241,11 @@ import { sound } from "@pixi/sound";
     await waitForAnswer(text10, text20, text30);
   }
 
-  function showText(text, steady = false, height = 3) {
+  function showText(text, steady = false, height = 3, color = "black") {
     return new Promise((resolve) => {
       const text1 = new BitmapText({
         text: text,
-        style: { fontFamily: "font", fontSize: 10, fill: "black" },
+        style: { fontFamily: "font", fontSize: 10, fill: color },
       });
       text1.anchor.set(0.5);
       text1.scale.set(2);
@@ -216,7 +258,7 @@ import { sound } from "@pixi/sound";
         setTimeout(() => {
           app.stage.removeChild(text1);
           resolve();
-        }, 1500); //1500
+        }, 150); //1500
       }
     });
   }
@@ -250,10 +292,12 @@ import { sound } from "@pixi/sound";
 
     await slideIn(enemy, "right", enemy_position);
     await wait(200);
-    await showText(`Herausforderung ${number}:\n${title}`);
+    await showText(`Herausforderung ${number}:\n${title}`, false, 2);
     await slideIn(sp_b, "right", 2);
     await showText(question, true, 2);
     await showAnswers(optionCorrect, option2, option3);
+    cur_challenge++;
+    console.log(cur_challenge);
   }
 
   function wait(t) {
@@ -296,7 +340,7 @@ import { sound } from "@pixi/sound";
     app.stage.removeChild(bereit);
     await executeFight(
       "geiger",
-      1,
+      cur_challenge,
       "Geigenunterricht",
       "Wer ist der beste Komponist?",
       "Dvorak",
@@ -305,9 +349,9 @@ import { sound } from "@pixi/sound";
     );
     await executeFight(
       "deutscher",
-      2,
+      cur_challenge,
       "Deutsch lernen",
-      "Welcher dieser Ausdrücke\nist der einzig grammatikalisch Korrekte,\nder Erstaunen signalisiert?",
+      "Welcher dieser Ausdrücke\nist der einzig\ngrammatikalisch Korrekte,\nder Erstaunen signalisiert?",
       "Oida!",
       "Erstaunlich!",
       "Welch Wunder!",
@@ -315,9 +359,9 @@ import { sound } from "@pixi/sound";
     );
     await executeFight(
       "bachelor",
-      3,
+      cur_challenge,
       "Wirtschaftswissenschaften",
-      "An welchem Ort lernt es sich am besten?",
+      "An welchem Ort\nlernt es sich am besten?",
       "Biertümpel",
       "Zentralbibliothek",
       "Audimax",
@@ -325,15 +369,33 @@ import { sound } from "@pixi/sound";
     );
     await executeFight(
       "fabrik",
-      4,
+      cur_challenge,
       "Fabrikleitung",
       "Wer hat die besten Tüten?",
-      "Ein typ aus Madiun",
+      "Ein Typ aus Madiun",
       "Wonderwoman",
       "Bob Marley",
       3
     );
   }
 
-  restartGame();
+  await restartGame();
+  await showText("Herzlichen Glückwunsch");
+  await showText("Du hast alle Herausforderungen\nmit Bravur gemeistert!");
+  await showText("Hier deine Belohnung");
+  await showText("(Bitte anklicken)", true);
+
+  const schatz = new Sprite(Assets.get("schatz"));
+  schatz.anchor.set(0.5);
+  schatz.scale.set(0.2);
+  schatz.y = app.screen.height / 2;
+  schatz.x = app.screen.width / 2;
+  app.stage.addChild(schatz);
+  schatz.eventMode = "static";
+  const htmlBox = document.createElement("div");
+  htmlBox.classList.add("pp_form");
+  document.body.appendChild(htmlBox);
+  schatz.on("pointerdown", () => {
+    //  htmlBox.style.display = "block";
+  });
 })();
