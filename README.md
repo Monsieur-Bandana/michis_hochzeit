@@ -7,6 +7,6 @@ station 1:
 
 - Geige lernen: wer ist der beste komponist: Bach, Dvorak, Mozart
 - Deutsch lernen: in Jakarta: Was ist ein Wort, welches Erstaunen signalisiert: "Erstaunlich!", "Welch Wunder!", "Oida!"
-- Wirtschaft studieren:
+- Wirtschaft studieren: Welches ist der beste Ort in WÜrzburg: Alte Mainbrück, Zentralbibliothek, Biertümpel
 - Orchester: Bonus-Life
 - Fabrik übernehmen: Wer hat die besten Tüten? Wonderwoman, Bob Marley, ein Typ aus Madiun?
