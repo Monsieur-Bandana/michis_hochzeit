@@ -15,6 +15,8 @@ import { sound } from "@pixi/sound";
   // Load Assets
   await Assets.load([
     { alias: "soundtrack", src: "assets/soundtrack.mp3" },
+    { alias: "magneto", src: "assets/magneto.mp3" },
+    { alias: "romeo", src: "assets/romeo.mp3" },
     { alias: "michi", src: "assets/michi.png" },
     { alias: "font", src: "fonts/ArcadeClassic.ttf" },
     { alias: "bereit", src: "assets/bereit.png" },
@@ -54,8 +56,7 @@ import { sound } from "@pixi/sound";
     option3: "Mozart",
   };
   const deutschfrage1 = {
-    question:
-      "Welcher dieser Ausdrücke\nist der einzig\ngrammatikalisch Korrekte,\nder Erstaunen signalisiert?",
+    question: "Was sagt man überlicherweise\num Erstaunen auszudrücken?",
     optionCorrect: "Oida!",
     option2: "Erstaunlich!",
     option3: "Welch Wunder!",
@@ -81,18 +82,21 @@ import { sound } from "@pixi/sound";
   const fabrikfrage2 = {
     question: "Wo liegt Madiun?",
     optionCorrect: "Neuseeland",
-    option2: "Indonesien",
-    option3: "Malaysia",
+    option2: "Java",
+    option3: "Sumatra",
   };
 
   // Soundtrack
   const audioBuffer = Assets.get("soundtrack");
   sound.add("background", audioBuffer);
-  sound.play("background", { loop: true, volume: 0.3 });
+  const audioBuffer2 = Assets.get("magneto");
+  sound.add("background2", audioBuffer2);
+  const audioBuffer4 = Assets.get("romeo");
+  sound.add("background3", audioBuffer4);
 
   // Bowserlachen
-  const audioBuffer2 = Assets.get("bowser");
-  sound.add("villain", audioBuffer2);
+  const audioBuffer3 = Assets.get("bowser");
+  sound.add("villain", audioBuffer3);
 
   // Michi
   const michi = new Sprite(Assets.get("michi"));
@@ -104,20 +108,36 @@ import { sound } from "@pixi/sound";
   app.stage.addChild(michi);
 
   // Leben
-  const livesContainer = new Container();
-  const heartscale = 0.01;
-  const life1 = new Sprite("herz.png");
-  life1.scale = heartscale;
-  const life2 = new Sprite("herz.png");
-  life2.scale = heartscale;
-  const life3 = new Sprite("herz.png");
-  life3.scale = heartscale;
-  life2.x = life1.width + 8;
-  life3.x = (life1.width + 8) * 2;
-  livesContainer.addChild(life1, life2, life3);
-  livesContainer.x = 20;
-  livesContainer.y = 20;
-  app.stage.addChild(livesContainer);
+  function createLives() {
+    var generatorNum = 0;
+    var heartPosition = 0;
+    while (generatorNum < numberOfLifes) {
+      const heart = new Sprite(Assets.get("herz"));
+      heart.anchor.set(0.5);
+      heart.scale.set(0.025);
+      heart.label = "heart";
+      heart.y = app.screen.height / 8;
+      heart.x = app.screen.width / 4 + heartPosition;
+      app.stage.addChild(heart);
+      generatorNum++;
+      heartPosition += 50;
+    }
+  }
+
+  function updateLives() {
+    new Promise((resolve) => {
+      for (const child of app.stage.children.slice()) {
+        if (child.label === "heart") {
+          app.stage.removeChild(child);
+        }
+      }
+      setTimeout(() => {
+        resolve();
+      }, 10);
+    });
+
+    createLives();
+  }
 
   // lässt die Charaktäre reinsliden
   function slideIn(character, direction, dest = 4, target_x = 0) {
@@ -189,9 +209,11 @@ import { sound } from "@pixi/sound";
   function createText(text, h, slideInAnimation = true) {
     const y = app.screen.height - app.screen.height / 4 + h;
 
-    const x = slideInAnimation ? app.screen.width + 60 : app.screen.width / 2;
+    const x = slideInAnimation
+      ? app.screen.width - app.screen.width / 4
+      : app.screen.width / 2;
 
-    const text1 = createGenericText(text, x, y, slideInAnimation, "unset");
+    const text1 = createGenericText(text, x, y, slideInAnimation);
     return text1;
   }
 
@@ -300,6 +322,7 @@ import { sound } from "@pixi/sound";
     showText("Schade! Du verlierst ein Leben!");
     numberOfLifes--;
     console.log(numberOfLifes);
+    updateLives();
     if (numberOfLifes <= 0) {
       console.log("i was here!");
 
@@ -399,7 +422,7 @@ import { sound } from "@pixi/sound";
       curr_q = createGenericText(
         el.question,
         app.screen.width / 2,
-        app.screen.height / 2
+        app.screen.height / 1.95
       );
 
       if (question_map_list.length == counter) {
@@ -425,18 +448,27 @@ import { sound } from "@pixi/sound";
     });
   }
 
-  // Begrüsung
-  const text1 = "Lieber Michi!";
-  const text2 = "Herzlichen Glückwunsch\nzur gelungenen Hochzeit!";
-  const text3 = "Zur Feier dieses Ereignisses\nsteht das Spiel des Lebens an";
-  const text4 = "Am Ende wartet auch ein Preis auf dich";
   const text5 = "Bist du bereit?";
+  const introTexts = [
+    "Lieber Michi!",
+    "Herzlichen Glückwunsch\nzur gelungenen Hochzeit!",
+    "Das war wirklich ein\ntoller Abend.",
+    "Auf deinem bisherigen\nWeg durchs Leben ...",
+    "... hast du schon viele\nPrüfungen gemeistert.",
+    "Heute musst du dich noch\neinmal vier deiner erbittersten\nGegener stellen.",
+    "Am Ende wartet ein Preis auf dich",
+    text5,
+  ];
+
+  async function generateIntroTexts(listOfTexts) {
+    for (const el of listOfTexts) {
+      await showText(el);
+    }
+  }
 
   await slideIn(michi, "left");
-  await showText(text1);
-  await showText(text2);
-  await showText(text3);
-  await showText(text4);
+  // Begrüsung
+  await generateIntroTexts(introTexts);
 
   async function sendMail(body_t) {
     // mail code here
@@ -481,6 +513,8 @@ import { sound } from "@pixi/sound";
     });
     app.stage.removeChild(bereit);
 
+    sound.play("background", { loop: true, volume: 0.3 });
+    createLives();
     await executeFight({
       enemy_str: "geiger",
       title: "Geigenunterricht",
@@ -493,6 +527,8 @@ import { sound } from "@pixi/sound";
       question_map_list: [deutschfrage1],
       enemy_position: 3,
     });
+    sound.stop("background");
+    sound.play("background2");
     await executeFight({
       enemy_str: "bachelor",
       title: "Wirtschaftswissenschaften",
@@ -500,7 +536,22 @@ import { sound } from "@pixi/sound";
       enemy_position: 3,
     });
 
+    const markusTexts = [
+      "Hallo Michael!",
+      "Klasse wie gut du vorankommst.",
+      "Zur Feier des Tages\nspendiere ich dir ...",
+      "... ein Extra Leben!",
+      "Viel Erfolg weiterhin",
+      "Ah und das akademische Orchester\nhat stets eine Tür offen für dich",
+    ];
+
+    await generateIntroTexts(markusTexts);
     numberOfLifes++;
+    updateLives();
+
+    sound.stop("background2");
+
+    sound.play("background3");
     await executeFight({
       enemy_str: "fabrik",
       title: "Fabrikleitung",
@@ -508,6 +559,8 @@ import { sound } from "@pixi/sound";
       enemy_position: 3,
       enemy_scale: 0.25,
     });
+
+    sound.stop("background3");
   }
 
   await restartGame();
