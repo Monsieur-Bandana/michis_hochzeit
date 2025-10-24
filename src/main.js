@@ -1,4 +1,4 @@
-import { Application, Assets, Sprite, BitmapText, Container } from "pixi.js";
+import { Application, Assets, Sprite, Container, Text } from "pixi.js";
 import { sound } from "@pixi/sound";
 
 // Asynchronous IIFE
@@ -16,7 +16,7 @@ import { sound } from "@pixi/sound";
   await Assets.load([
     { alias: "soundtrack", src: "assets/soundtrack.mp3" },
     { alias: "michi", src: "assets/michi.png" },
-    { alias: "font", src: "assets/Kalufira.otf" },
+    { alias: "font", src: "fonts/ArcadeClassic.ttf" },
     { alias: "bereit", src: "assets/bereit.png" },
     { alias: "herz", src: "assets/herz.png" },
     { alias: "geiger", src: "assets/geiger.png" },
@@ -28,6 +28,8 @@ import { sound } from "@pixi/sound";
     { alias: "schatz", src: "assets/schatz.png" },
     { alias: "thanos", src: "assets/thanos.png" },
     { alias: "bowser", src: "assets/bowser.mp3" },
+    { alias: "paypal", src: "assets/paypal_button.png" },
+    { alias: "shock", src: "assets/shock.png" },
   ]);
 
   const right = "right";
@@ -36,6 +38,52 @@ import { sound } from "@pixi/sound";
   var cur_challenge = 1;
   var currentAnswerStatus = false;
   var curr_enemy;
+  var curr_sb;
+  var curr_q;
+  var curr_o1;
+  var curr_o2;
+  var curr_o3;
+  var michis_user_name = "";
+  var michis_mail = "puriwild@googlemail.com";
+
+  // Setup der Fragestellungen
+  const geigenfrage1 = {
+    question: "Wer ist der beste Komponist?",
+    optionCorrect: "Dvorak",
+    option2: "Bach",
+    option3: "Mozart",
+  };
+  const deutschfrage1 = {
+    question:
+      "Welcher dieser Ausdrücke\nist der einzig\ngrammatikalisch Korrekte,\nder Erstaunen signalisiert?",
+    optionCorrect: "Oida!",
+    option2: "Erstaunlich!",
+    option3: "Welch Wunder!",
+  };
+  const bachelorfrage1 = {
+    question: "An welchem Ort\nlernt es sich am besten?",
+    optionCorrect: "Biertümpel",
+    option2: "Zentralbibliothek",
+    option3: "Audimax",
+  };
+  const bachelorfrage2 = {
+    question: "Wie ist das Wetter?",
+    optionCorrect: "Kiesewettrig",
+    option2: "Regnerisch",
+    option3: "Sonnig",
+  };
+  const fabrikfrage1 = {
+    question: "Wer hat die besten Tüten?",
+    optionCorrect: "Ein Typ aus Madiun",
+    option2: "Wonderwoman",
+    option3: "Bob Marley",
+  };
+  const fabrikfrage2 = {
+    question: "Wo liegt Madiun?",
+    optionCorrect: "Neuseeland",
+    option2: "Indonesien",
+    option3: "Malaysia",
+  };
 
   // Soundtrack
   const audioBuffer = Assets.get("soundtrack");
@@ -72,13 +120,14 @@ import { sound } from "@pixi/sound";
   app.stage.addChild(livesContainer);
 
   // lässt die Charaktäre reinsliden
-  function slideIn(character, direction, dest = 4) {
+  function slideIn(character, direction, dest = 4, target_x = 0) {
     return new Promise((resolve) => {
       var x_value = 0;
       direction == "left"
         ? (x_value = app.screen.width / dest)
         : (x_value = app.screen.width - app.screen.width / dest);
-      const targetX = x_value;
+      var targetX = 0;
+      target_x == 0 ? (targetX = x_value) : (targetX = target_x);
       const speed = 0.7; // px pro Frame – ggf. anpassen
       app.ticker.add(function move() {
         const delta = app.ticker.deltaMS;
@@ -98,20 +147,59 @@ import { sound } from "@pixi/sound";
     });
   }
 
+  async function slideOut(character) {
+    const desti = app.screen.width + 1000;
+    await slideIn(character, "left", 4, desti);
+  }
+
+  function createGenericText(text, x_axis, y_axis, slideInAnimation = true) {
+    const text1 = new Text({
+      text,
+      style: {
+        fontFamily: "ArcadeClassic",
+        fontSize: 10,
+        fill: "black",
+        resolution: 2,
+      },
+    });
+    text1.anchor.set(0.5);
+    text1.scale.set(2);
+    text1.y = y_axis;
+
+    text1.x = slideInAnimation ? app.screen.width + 60 : app.screen.width / 2;
+
+    text1.eventMode = "static";
+
+    app.stage.addChild(text1);
+    if (slideInAnimation) {
+      slideIn(text1, "right", 10, x_axis);
+    }
+    return text1;
+  }
+
   // generiert die Antwortmöglichkeiten
-  function createText(text, h) {
-    const text1 = new BitmapText({
-      text: text,
-      style: { fontFamily: "font", fontSize: 10, fill: "black" },
+  function createText(text, h, slideInAnimation = true) {
+    const text1 = new Text({
+      text,
+      style: {
+        fontFamily: "ArcadeClassic",
+        fontSize: 10,
+        fill: "black",
+        resolution: 2,
+      },
     });
     text1.anchor.set(0.5);
     text1.scale.set(2);
     text1.y = app.screen.height - app.screen.height / 4 + h;
-    text1.x = app.screen.width + 60;
+
+    text1.x = slideInAnimation ? app.screen.width + 60 : app.screen.width / 2;
+
     text1.eventMode = "static";
 
     app.stage.addChild(text1);
-    slideIn(text1, "right");
+    if (slideInAnimation) {
+      slideIn(text1, "right");
+    }
     return text1;
   }
 
@@ -126,9 +214,33 @@ import { sound } from "@pixi/sound";
     });
   }
 
+  async function removeEveryItemFromScreen({ except = "2343242342344234" }) {
+    return new Promise((resolve) => {
+      for (const child of app.stage.children.slice()) {
+        if (child.name !== except) {
+          app.stage.removeChild(child);
+        }
+      }
+      setTimeout(() => {
+        resolve();
+      }, 10);
+    });
+  }
+
   // diese Funktion leitet die nächste Runde ein, wenn
   // Frage richtig beantwortet
-  async function winFunction() {
+  async function winFunction(stay_in_arena) {
+    if (stay_in_arena) {
+      return new Promise(async (resolve) => {
+        app.stage.removeChild(curr_q);
+        var counter = 1;
+        for (const el of [curr_q, curr_o1, curr_o2, curr_o3]) {
+          slideOut(el);
+        }
+        await slideOut(curr_sb);
+        resolve();
+      });
+    }
     // Alle Elemente außer "michi" aus der Stage entfernen
     return new Promise(async (resolve) => {
       if (curr_enemy != null) {
@@ -140,14 +252,8 @@ import { sound } from "@pixi/sound";
           resolve();
         }, 1500);
       });
-      for (const child of app.stage.children.slice()) {
-        if (child.name !== "michi") {
-          app.stage.removeChild(child);
-        }
-      }
-      setTimeout(() => {
-        resolve();
-      }, 10);
+      await removeEveryItemFromScreen({ except: "michi" });
+      resolve();
     });
   }
 
@@ -214,15 +320,15 @@ import { sound } from "@pixi/sound";
 
       await restartfunction();
       return resolve("gameover");
-    } else {
+    } /*else {
       await waitForAnswer(an1, an2, an3, resolve);
-    }
+    }*/
   }
 
-  async function waitForAnswer(an1, an2, an3, resolve) {
+  async function waitForAnswer(an1, an2, an3, stay_in_arena, resolve) {
     return new Promise((resolve) => {
       an1.on("pointerdown", async () => {
-        await winFunction();
+        await winFunction(stay_in_arena);
         resolve("win");
       });
       an2.on("pointerdown", async () => {
@@ -234,18 +340,27 @@ import { sound } from "@pixi/sound";
     });
   }
 
-  async function showAnswers(answerCorrect, answerWrong1, answerWrong2) {
+  async function showAnswers(
+    answerCorrect,
+    answerWrong1,
+    answerWrong2,
+    stay_in_arena
+  ) {
     const text10 = createText(answerCorrect, 80);
     const text20 = createText(answerWrong1, 40);
     const text30 = createText(answerWrong2, 0);
-    await waitForAnswer(text10, text20, text30);
+    curr_o1 = text10;
+    curr_o2 = text20;
+    curr_o3 = text30;
+    await waitForAnswer(text10, text20, text30, stay_in_arena);
   }
 
   function showText(text, steady = false, height = 3, color = "black") {
     return new Promise((resolve) => {
-      const text1 = new BitmapText({
-        text: text,
-        style: { fontFamily: "font", fontSize: 10, fill: color },
+      const text1 = new Text({
+        text,
+        style: { fontFamily: "ArcadeClassic", fontSize: 10, fill: color },
+        resolution: 2,
       });
       text1.anchor.set(0.5);
       text1.scale.set(2);
@@ -263,20 +378,17 @@ import { sound } from "@pixi/sound";
     });
   }
 
-  async function executeFight(
+  async function executeFight({
     enemy_str,
-    number,
     title,
-    question,
-    optionCorrect,
-    option2,
-    option3,
-    enemy_position = 4
-  ) {
+    question_map_list,
+    enemy_position = 4,
+    enemy_scale = 0.1,
+  }) {
     // Gegnergenerierung
     const enemy = new Sprite(Assets.get(enemy_str));
     enemy.anchor.set(0.5);
-    enemy.scale.set(0.1);
+    enemy.scale.set(enemy_scale);
     enemy.y = app.screen.height / 4;
     enemy.x = app.screen.width + 60;
     app.stage.addChild(enemy);
@@ -289,13 +401,33 @@ import { sound } from "@pixi/sound";
     sp_b.y = app.screen.height / 2;
     sp_b.x = app.screen.width + 160;
     app.stage.addChild(sp_b);
+    curr_sb = sp_b;
 
     await slideIn(enemy, "right", enemy_position);
     await wait(200);
-    await showText(`Herausforderung ${number}:\n${title}`, false, 2);
-    await slideIn(sp_b, "right", 2);
-    await showText(question, true, 2);
-    await showAnswers(optionCorrect, option2, option3);
+    await showText(`Herausforderung ${cur_challenge}:\n${title}`, false, 2);
+    var counter = 1;
+    var stay_in_arena = true;
+    for (const el of question_map_list) {
+      console.log(el);
+      await slideIn(sp_b, "right", 2);
+      curr_q = createGenericText(
+        el.question,
+        app.screen.width / 2,
+        app.screen.height / 2
+      );
+
+      if (question_map_list.length == counter) {
+        stay_in_arena = false;
+      }
+      await showAnswers(
+        el.optionCorrect,
+        el.option2,
+        el.option3,
+        stay_in_arena
+      );
+      counter++;
+    }
     cur_challenge++;
     console.log(cur_challenge);
   }
@@ -321,6 +453,31 @@ import { sound } from "@pixi/sound";
   await showText(text3);
   await showText(text4);
 
+  async function sendMail(body_t) {
+    // mail code here
+
+    try {
+      await fetch("", {
+        method: "POST",
+        headers: { "Content-Type": "Michis-Hochzeits-App" },
+        body: JSON.stringify({
+          to: "nicolas.wild@googlemail.com",
+          replyTo: michis_mail,
+          message: body_t,
+        }),
+      });
+
+      removeEveryItemFromScreen({});
+      showText(
+        "Anfrage erfolgreich versendet!\nDu kannst die App jetzt schließen!",
+        true
+      );
+    } catch (e) {
+      console.error(e);
+      showText("Senden fehlgeschlagen.\nBitte später erneut versuchen.", true);
+    }
+  }
+
   async function restartGame() {
     // Bereit Button
     const bereit = new Sprite(Assets.get("bereit"));
@@ -338,45 +495,34 @@ import { sound } from "@pixi/sound";
       });
     });
     app.stage.removeChild(bereit);
-    await executeFight(
-      "geiger",
-      cur_challenge,
-      "Geigenunterricht",
-      "Wer ist der beste Komponist?",
-      "Dvorak",
-      "Bach",
-      "Mozart"
-    );
-    await executeFight(
-      "deutscher",
-      cur_challenge,
-      "Deutsch lernen",
-      "Welcher dieser Ausdrücke\nist der einzig\ngrammatikalisch Korrekte,\nder Erstaunen signalisiert?",
-      "Oida!",
-      "Erstaunlich!",
-      "Welch Wunder!",
-      3
-    );
-    await executeFight(
-      "bachelor",
-      cur_challenge,
-      "Wirtschaftswissenschaften",
-      "An welchem Ort\nlernt es sich am besten?",
-      "Biertümpel",
-      "Zentralbibliothek",
-      "Audimax",
-      3
-    );
-    await executeFight(
-      "fabrik",
-      cur_challenge,
-      "Fabrikleitung",
-      "Wer hat die besten Tüten?",
-      "Ein Typ aus Madiun",
-      "Wonderwoman",
-      "Bob Marley",
-      3
-    );
+
+    await executeFight({
+      enemy_str: "geiger",
+      title: "Geigenunterricht",
+      question_map_list: [geigenfrage1],
+      enemy_scale: 0.15,
+    });
+    await executeFight({
+      enemy_str: "deutscher",
+      title: "Deutsch lernen",
+      question_map_list: [deutschfrage1],
+      enemy_position: 3,
+    });
+    await executeFight({
+      enemy_str: "bachelor",
+      title: "Wirtschaftswissenschaften",
+      question_map_list: [bachelorfrage1, bachelorfrage2],
+      enemy_position: 3,
+    });
+
+    numberOfLifes++;
+    await executeFight({
+      enemy_str: "fabrik",
+      title: "Fabrikleitung",
+      question_map_list: [fabrikfrage2, fabrikfrage1],
+      enemy_position: 3,
+      enemy_scale: 0.25,
+    });
   }
 
   await restartGame();
@@ -392,10 +538,42 @@ import { sound } from "@pixi/sound";
   schatz.x = app.screen.width / 2;
   app.stage.addChild(schatz);
   schatz.eventMode = "static";
-  const htmlBox = document.createElement("div");
-  htmlBox.classList.add("pp_form");
-  document.body.appendChild(htmlBox);
-  schatz.on("pointerdown", () => {
-    //  htmlBox.style.display = "block";
+
+  await new Promise((resolve) => {
+    schatz.on("pointerdown", () => {
+      resolve();
+    });
+  });
+  await removeEveryItemFromScreen({});
+  await showText("Name deines Nutzeraccounts", true, 4.5);
+  await showText("E-Mail deines Nutzeraccounts", true, 3);
+  const paypal = new Sprite(Assets.get("paypal"));
+  paypal.anchor.set(0.5);
+  paypal.scale.set(0.1);
+  paypal.y = app.screen.height / 2;
+  paypal.x = app.screen.width / 2;
+  app.stage.addChild(paypal);
+  paypal.eventMode = "static";
+  paypal.on("pointerdown", () => {
+    sendMail(
+      `paypal Anfrage\nAdresse: ${michis_mail}\nName: ${michis_user_name}`
+    );
+  });
+
+  const shock = new Sprite(Assets.get("shock"));
+  shock.anchor.set(0.5);
+  shock.scale.set(0.3);
+  shock.y = app.screen.height / 1.5;
+  shock.x = app.screen.width / 2;
+  app.stage.addChild(shock);
+  const no_pp_request = createText(
+    "Wie du hast kein Paypal?!\nBitte hier klicken",
+    20,
+    false
+  );
+  no_pp_request.on("pointerdown", () => {
+    sendMail(
+      `Habe leider kein Paypal, schreib mir am besten auf Whatsapp\nGrüße ${michis_user_name}`
+    );
   });
 })();
