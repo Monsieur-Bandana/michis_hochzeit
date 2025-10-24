@@ -32,6 +32,7 @@ import { sound } from "@pixi/sound";
     { alias: "bowser", src: "assets/bowser.mp3" },
     { alias: "paypal", src: "assets/paypal_button.png" },
     { alias: "shock", src: "assets/shock.png" },
+    { alias: "markus", src: "assets/markus_rotated.png" },
   ]);
 
   const right = "right";
@@ -99,13 +100,17 @@ import { sound } from "@pixi/sound";
   sound.add("villain", audioBuffer3);
 
   // Michi
-  const michi = new Sprite(Assets.get("michi"));
-  michi.name = "michi";
-  michi.anchor.set(0.5);
-  michi.scale.set(2);
-  michi.y = app.screen.height - app.screen.height / 4;
-  michi.x = app.screen.width - app.screen.width * 0.99;
-  app.stage.addChild(michi);
+  async function createMichi() {
+    const michi = new Sprite(Assets.get("michi"));
+    michi.label = "michi";
+    michi.anchor.set(0.5);
+    michi.scale.set(2);
+    michi.y = app.screen.height - app.screen.height / 4;
+    michi.x = app.screen.width - app.screen.width * 0.99;
+    app.stage.addChild(michi);
+
+    await slideIn(michi, "left");
+  }
 
   // Leben
   function createLives() {
@@ -167,6 +172,8 @@ import { sound } from "@pixi/sound";
     });
   }
 
+  function slideInMultiple() {}
+
   async function slideOut(character) {
     const desti = app.screen.width + 1000;
     await slideIn(character, "left", 4, desti);
@@ -207,7 +214,7 @@ import { sound } from "@pixi/sound";
 
   // generiert die Antwortmöglichkeiten
   function createText(text, h, slideInAnimation = true) {
-    const y = app.screen.height - app.screen.height / 4 + h;
+    const y = app.screen.height - app.screen.height / 3 + h;
 
     const x = slideInAnimation
       ? app.screen.width - app.screen.width / 4
@@ -228,10 +235,16 @@ import { sound } from "@pixi/sound";
     });
   }
 
-  async function removeEveryItemFromScreen({ except = "2343242342344234" }) {
+  async function removeEveryItemFromScreen({ exceptList = [] }) {
     return new Promise((resolve) => {
       for (const child of app.stage.children.slice()) {
-        if (child.name !== except) {
+        var savecounter = false;
+        for (const label_el of exceptList) {
+          if (child.label === label_el) {
+            savecounter = true;
+          }
+        }
+        if (!savecounter) {
           app.stage.removeChild(child);
         }
       }
@@ -266,7 +279,7 @@ import { sound } from "@pixi/sound";
           resolve();
         }, 1500);
       });
-      await removeEveryItemFromScreen({ except: "michi" });
+      await removeEveryItemFromScreen({ exceptList: ["michi", "heart"] });
       resolve();
     });
   }
@@ -312,8 +325,9 @@ import { sound } from "@pixi/sound";
           resolve();
         }, 1500);
       });
-      removeEveryItemFromScreen("michi");
+      removeEveryItemFromScreen({});
       await showText("Auf ein Neues!\nDiesmal klappts bestimmt!");
+      await createMichi();
       restartGame();
     });
   }
@@ -354,8 +368,8 @@ import { sound } from "@pixi/sound";
     answerWrong2,
     stay_in_arena
   ) {
-    const text10 = createText(answerCorrect, 80);
-    const text20 = createText(answerWrong1, 40);
+    const text10 = createText(answerCorrect, 150);
+    const text20 = createText(answerWrong1, 75);
     const text30 = createText(answerWrong2, 0);
     curr_o1 = text10;
     curr_o2 = text20;
@@ -381,7 +395,7 @@ import { sound } from "@pixi/sound";
         setTimeout(() => {
           app.stage.removeChild(text1);
           resolve();
-        }, 150); //1500
+        }, 1500); //1500
       }
     });
   }
@@ -460,13 +474,13 @@ import { sound } from "@pixi/sound";
     text5,
   ];
 
-  async function generateIntroTexts(listOfTexts) {
+  async function generateIntroTexts(listOfTexts, h = 3) {
     for (const el of listOfTexts) {
-      await showText(el);
+      await showText(el, false, h);
     }
   }
 
-  await slideIn(michi, "left");
+  await createMichi();
   // Begrüsung
   await generateIntroTexts(introTexts);
 
@@ -515,6 +529,7 @@ import { sound } from "@pixi/sound";
 
     sound.play("background", { loop: true, volume: 0.3 });
     createLives();
+
     await executeFight({
       enemy_str: "geiger",
       title: "Geigenunterricht",
@@ -542,12 +557,36 @@ import { sound } from "@pixi/sound";
       "Zur Feier des Tages\nspendiere ich dir ...",
       "... ein Extra Leben!",
       "Viel Erfolg weiterhin",
-      "Ah und das akademische Orchester\nhat stets eine Tür offen für dich",
+      "Ah und das akademische Orchester\nhat stets eine Tür für dich offen",
+      "BITTE KOMM ZURÜCK",
     ];
 
-    await generateIntroTexts(markusTexts);
+    const sp_b = new Sprite(Assets.get("bubble"));
+    sp_b.anchor.set(0.5);
+    sp_b.scale.set(0.1);
+    sp_b.y = app.screen.height / 2;
+    sp_b.x = app.screen.width + 160;
+    app.stage.addChild(sp_b);
+    curr_sb = sp_b;
+
+    const markus = new Sprite(Assets.get("markus"));
+    markus.anchor.set(0.5);
+    markus.scale.set(1);
+    markus.y = app.screen.height / 4;
+    markus.x = app.screen.width + 160;
+    app.stage.addChild(markus);
+    curr_sb = markus;
+
+    await slideIn(markus, "right", app.screen.width / 4);
+
+    await slideIn(sp_b, "right", 2, app.screen.width / 2);
+
+    await generateIntroTexts(markusTexts, 1.95);
     numberOfLifes++;
     updateLives();
+
+    await slideOut(sp_b);
+    await slideOut(markus);
 
     sound.stop("background2");
 
