@@ -152,7 +152,13 @@ import { sound } from "@pixi/sound";
     await slideIn(character, "left", 4, desti);
   }
 
-  function createGenericText(text, x_axis, y_axis, slideInAnimation = true) {
+  function createGenericText(
+    text,
+    x_axis,
+    y_axis,
+    slideInAnimation = true,
+    dest = "set"
+  ) {
     const text1 = new Text({
       text,
       style: {
@@ -172,34 +178,20 @@ import { sound } from "@pixi/sound";
 
     app.stage.addChild(text1);
     if (slideInAnimation) {
-      slideIn(text1, "right", 10, x_axis);
+      dest == "unset"
+        ? slideIn(text1, "right", 10)
+        : slideIn(text1, "right", 10, x_axis);
     }
     return text1;
   }
 
   // generiert die Antwortmöglichkeiten
   function createText(text, h, slideInAnimation = true) {
-    const text1 = new Text({
-      text,
-      style: {
-        fontFamily: "ArcadeClassic",
-        fontSize: 10,
-        fill: "black",
-        resolution: 2,
-      },
-    });
-    text1.anchor.set(0.5);
-    text1.scale.set(2);
-    text1.y = app.screen.height - app.screen.height / 4 + h;
+    const y = app.screen.height - app.screen.height / 4 + h;
 
-    text1.x = slideInAnimation ? app.screen.width + 60 : app.screen.width / 2;
+    const x = slideInAnimation ? app.screen.width + 60 : app.screen.width / 2;
 
-    text1.eventMode = "static";
-
-    app.stage.addChild(text1);
-    if (slideInAnimation) {
-      slideIn(text1, "right");
-    }
+    const text1 = createGenericText(text, x, y, slideInAnimation, "unset");
     return text1;
   }
 
@@ -288,7 +280,7 @@ import { sound } from "@pixi/sound";
       }, 500);
     });
     // Verwendung:
-    await scaleUp(thanos, 10, 0.06);
+    await scaleUp(thanos, 6, 0.01);
 
     numberOfLifes = 3;
     return await new Promise(async (resolve) => {
@@ -298,14 +290,7 @@ import { sound } from "@pixi/sound";
           resolve();
         }, 1500);
       });
-      for (const child of app.stage.children.slice()) {
-        if (child.name !== "michi") {
-          app.stage.removeChild(child);
-        }
-      }
-      setTimeout(() => {
-        resolve();
-      }, 10);
+      removeEveryItemFromScreen("michi");
       await showText("Auf ein Neues!\nDiesmal klappts bestimmt!");
       restartGame();
     });
