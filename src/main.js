@@ -17,8 +17,11 @@ import { sound } from "@pixi/sound";
     { alias: "soundtrack", src: "assets/soundtrack.mp3" },
     { alias: "magneto", src: "assets/magneto.mp3" },
     { alias: "romeo", src: "assets/romeo.mp3" },
+    { alias: "adagio", src: "assets/adagio.mp3" },
     { alias: "michi", src: "assets/michi.png" },
-    { alias: "font", src: "fonts/ArcadeClassic.ttf" },
+    //  { alias: "font", src: "fonts/ArcadeClassic.ttf" },
+    { alias: "font", src: "fonts/Pixelletters.ttf" },
+    { alias: "font", src: "fonts/GloriousFree.ttf" },
     { alias: "bereit", src: "assets/bereit.png" },
     { alias: "herz", src: "assets/herz.png" },
     { alias: "geiger", src: "assets/geiger.png" },
@@ -40,6 +43,7 @@ import { sound } from "@pixi/sound";
   var numberOfLifes = 3;
   var cur_challenge = 1;
   var currentAnswerStatus = false;
+  var curr_michi;
   var curr_enemy;
   var curr_sb;
   var curr_q;
@@ -94,6 +98,8 @@ import { sound } from "@pixi/sound";
   sound.add("background2", audioBuffer2);
   const audioBuffer4 = Assets.get("romeo");
   sound.add("background3", audioBuffer4);
+  const audioBuffer5 = Assets.get("adagio");
+  sound.add("background4", audioBuffer5);
 
   // Bowserlachen
   const audioBuffer3 = Assets.get("bowser");
@@ -108,7 +114,7 @@ import { sound } from "@pixi/sound";
     michi.y = app.screen.height - app.screen.height / 4;
     michi.x = app.screen.width - app.screen.width * 0.99;
     app.stage.addChild(michi);
-
+    curr_michi = michi;
     await slideIn(michi, "left");
   }
 
@@ -189,10 +195,9 @@ import { sound } from "@pixi/sound";
     const text1 = new Text({
       text,
       style: {
-        fontFamily: "ArcadeClassic",
+        fontFamily: "Pixelletters",
         fontSize: 10,
         fill: "black",
-        resolution: 2,
       },
     });
     text1.anchor.set(0.5);
@@ -226,11 +231,37 @@ import { sound } from "@pixi/sound";
 
   // erzeugt eine Sterbeanimation der Gegner
   async function deathAnimation(el) {
-    app.ticker.add((time) => {
-      new Promise((resolve) => {
-        time = 10000;
-        el.rotation += 0.1 * time.deltaTime;
-        resolve();
+    const rotate = () => {
+      el.rotation += 0.1; // radians per frame
+    };
+    /*
+    await slideTo(
+      curr_michi,
+      app.screen.width - app.screen.width / 4,
+      app.screen.height / 4,
+      10
+    );
+    await slideTo(
+      curr_michi,
+      app.screen.width - app.screen.width / 4,
+      app.screen.width - app.screen.height / 4,
+      10
+    );
+    */
+    app.ticker.add(rotate);
+    await slideTo(el, app.screen.width - 200, 0 - 200);
+  }
+
+  function slideTo(sprite, targetX, targetY, speed = 5) {
+    return new Promise((resolve) => {
+      app.ticker.add(function move() {
+        const dx = targetX - sprite.x;
+        const dy = targetY - sprite.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Normalize direction and move toward target
+        sprite.x += (dx / dist) * speed;
+        sprite.y += (dy / dist) * speed;
       });
     });
   }
@@ -271,10 +302,15 @@ import { sound } from "@pixi/sound";
     // Alle Elemente außer "michi" aus der Stage entfernen
     return new Promise(async (resolve) => {
       if (curr_enemy != null) {
-        await deathAnimation(curr_enemy);
+        await new Promise((resolve) => {
+          deathAnimation(curr_enemy);
+          setTimeout(() => {
+            resolve();
+          }, 1500);
+        });
       }
       await new Promise((resolve) => {
-        showText("Gratuliere, du darfst weiterleben", true);
+        showText({ text: "Gratuliere, du darfst weiterleben", steady: true });
         setTimeout(() => {
           resolve();
         }, 1500);
@@ -292,7 +328,7 @@ import { sound } from "@pixi/sound";
     thanos.y = app.screen.height / 2;
     thanos.x = app.screen.width / 2;
     app.stage.addChild(thanos);
-
+    sound.stopAll();
     sound.play("villain", { loop: false });
 
     function scaleUp(sprite, targetScale = 2, speed = 0.1) {
@@ -315,25 +351,29 @@ import { sound } from "@pixi/sound";
       }, 500);
     });
     // Verwendung:
-    await scaleUp(thanos, 6, 0.01);
+    await scaleUp(thanos, 4, 0.02);
 
     numberOfLifes = 3;
     return await new Promise(async (resolve) => {
       await new Promise((resolve) => {
-        showText("Das war dein letztes Leben!", false, 2, "white");
+        showText({
+          text: "Das war dein letztes Leben!",
+          height: 2,
+          color: "white",
+        });
         setTimeout(() => {
           resolve();
-        }, 1500);
+        }, 2000);
       });
       removeEveryItemFromScreen({});
-      await showText("Auf ein Neues!\nDiesmal klappts bestimmt!");
+      await showText({ text: "Auf ein Neues!\nDiesmal klappts bestimmt!" });
       await createMichi();
       restartGame();
     });
   }
 
   async function looseFunction(an1, an2, an3, resolve) {
-    showText("Schade! Du verlierst ein Leben!");
+    showText({ text: "Schade! Du verlierst ein Leben!" });
     numberOfLifes--;
     console.log(numberOfLifes);
     updateLives();
@@ -368,21 +408,40 @@ import { sound } from "@pixi/sound";
     answerWrong2,
     stay_in_arena
   ) {
-    const text10 = createText(answerCorrect, 150);
-    const text20 = createText(answerWrong1, 75);
-    const text30 = createText(answerWrong2, 0);
+    const heights = [150, 75, 0];
+
+    // Array zufällig mischen (Fisher–Yates)
+    for (let i = heights.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [heights[i], heights[j]] = [heights[j], heights[i]];
+    }
+    const text10 = createText(answerCorrect, heights[0]);
+    const text20 = createText(answerWrong1, heights[1]);
+    const text30 = createText(answerWrong2, heights[2]);
     curr_o1 = text10;
     curr_o2 = text20;
     curr_o3 = text30;
     await waitForAnswer(text10, text20, text30, stay_in_arena);
   }
 
-  function showText(text, steady = false, height = 3, color = "black") {
+  function showText({
+    text,
+    steady = false,
+    height = 3,
+    color = "black",
+    time_frame = 1500,
+    font = "Pixelletters",
+    fontSize = 10,
+  }) {
     return new Promise((resolve) => {
       const text1 = new Text({
         text,
-        style: { fontFamily: "ArcadeClassic", fontSize: 10, fill: color },
-        resolution: 2,
+        style: {
+          fontFamily: font,
+          fontSize: fontSize,
+          fill: color,
+          resolution: 1,
+        },
       });
       text1.anchor.set(0.5);
       text1.scale.set(2);
@@ -395,7 +454,7 @@ import { sound } from "@pixi/sound";
         setTimeout(() => {
           app.stage.removeChild(text1);
           resolve();
-        }, 1500); //1500
+        }, time_frame); //1500
       }
     });
   }
@@ -427,7 +486,13 @@ import { sound } from "@pixi/sound";
 
     await slideIn(enemy, "right", enemy_position);
     await wait(200);
-    await showText(`Herausforderung ${cur_challenge}:\n${title}`, false, 2);
+    await showText({
+      text: `Herausforderung ${cur_challenge}:\n${title}`,
+      height: 2,
+      time_frame: 2000,
+      font: "GloriousFree",
+      fontSize: 20,
+    });
     var counter = 1;
     var stay_in_arena = true;
     for (const el of question_map_list) {
@@ -469,20 +534,21 @@ import { sound } from "@pixi/sound";
     "Das war wirklich ein\ntoller Abend.",
     "Auf deinem bisherigen\nWeg durchs Leben ...",
     "... hast du schon viele\nPrüfungen gemeistert.",
-    "Heute musst du dich noch\neinmal vier deiner erbittersten\nGegener stellen.",
-    "Am Ende wartet ein Preis auf dich",
+    "Heute musst du dich noch\neinmal...",
+    "... vier deiner erbittersten\nGegener stellen.",
+    "Am Ende wartet\nein Preis auf dich",
     text5,
   ];
 
-  async function generateIntroTexts(listOfTexts, h = 3) {
+  async function generateTextSequence(listOfTexts, h = 3, size = 15) {
     for (const el of listOfTexts) {
-      await showText(el, false, h);
+      await showText({ text: el, height: h, fontSize: size });
     }
   }
 
   await createMichi();
   // Begrüsung
-  await generateIntroTexts(introTexts);
+  await generateTextSequence(introTexts);
 
   async function sendMail(body_t) {
     // mail code here
@@ -499,13 +565,16 @@ import { sound } from "@pixi/sound";
       });
 
       removeEveryItemFromScreen({});
-      showText(
-        "Anfrage erfolgreich versendet!\nDu kannst die App jetzt schließen!",
-        true
-      );
+      showText({
+        text: "Anfrage erfolgreich versendet!\nDu kannst die App jetzt schließen!",
+        steady: true,
+      });
     } catch (e) {
       console.error(e);
-      showText("Senden fehlgeschlagen.\nBitte später erneut versuchen.", true);
+      showText({
+        text: "Senden fehlgeschlagen.\nBitte später erneut versuchen.",
+        steady: true,
+      });
     }
   }
 
@@ -518,7 +587,7 @@ import { sound } from "@pixi/sound";
     bereit.x = app.screen.width + 60;
     app.stage.addChild(bereit);
     bereit.eventMode = "static";
-    await showText(text5);
+    await showText({ text: text5 });
     await slideIn(bereit, "right");
     await new Promise((resolve) => {
       bereit.on("pointerdown", () => {
@@ -527,7 +596,7 @@ import { sound } from "@pixi/sound";
     });
     app.stage.removeChild(bereit);
 
-    sound.play("background", { loop: true, volume: 0.3 });
+    sound.play("background", { loop: true, volume: 0.2 });
     createLives();
 
     await executeFight({
@@ -550,14 +619,20 @@ import { sound } from "@pixi/sound";
       question_map_list: [bachelorfrage1, bachelorfrage2],
       enemy_position: 3,
     });
+    sound.stop("background2");
+    sound.play("background4");
 
     const markusTexts = [
-      "Hallo Michael!",
-      "Klasse wie gut du vorankommst.",
+      "Hey, pssst Michael",
+      "Hallo hier oben!",
+      "Klasse wie gut du vorankommst!",
       "Zur Feier des Tages\nspendiere ich dir ...",
       "... ein Extra Leben!",
       "Viel Erfolg weiterhin",
-      "Ah und das akademische Orchester\nhat stets eine Tür für dich offen",
+      "Ach ja",
+      "Schau gern mal wieder",
+      "im akademischen Orchester vorbei",
+      "",
       "BITTE KOMM ZURÜCK",
     ];
 
@@ -581,14 +656,14 @@ import { sound } from "@pixi/sound";
 
     await slideIn(sp_b, "right", 2, app.screen.width / 2);
 
-    await generateIntroTexts(markusTexts, 1.95);
+    await generateTextSequence(markusTexts, 1.95, 10);
     numberOfLifes++;
     updateLives();
 
     await slideOut(sp_b);
     await slideOut(markus);
 
-    sound.stop("background2");
+    sound.stop("background4");
 
     sound.play("background3");
     await executeFight({
@@ -603,10 +678,14 @@ import { sound } from "@pixi/sound";
   }
 
   await restartGame();
-  await showText("Herzlichen Glückwunsch");
-  await showText("Du hast alle Herausforderungen\nmit Bravur gemeistert!");
-  await showText("Hier deine Belohnung");
-  await showText("(Bitte anklicken)", true);
+  const outrTexts = [
+    "Herzlichen Glückwunsch",
+    "Du hast alle Herausforderungen\nmit Bravur gemeistert!",
+    "Hier deine Belohnung",
+  ];
+  await generateTextSequence(outrTexts);
+
+  await showText({ text: "(Bitte anklicken)", steady: true });
 
   const schatz = new Sprite(Assets.get("schatz"));
   schatz.anchor.set(0.5);
@@ -622,8 +701,16 @@ import { sound } from "@pixi/sound";
     });
   });
   await removeEveryItemFromScreen({});
-  await showText("Name deines Nutzeraccounts", true, 4.5);
-  await showText("E-Mail deines Nutzeraccounts", true, 3);
+  await showText({
+    text: "Name deines Nutzeraccounts",
+    steady: true,
+    height: 4.5,
+  });
+  await showText({
+    text: "E-Mail deines Nutzeraccounts",
+    steady: true,
+    height: 3,
+  });
   const paypal = new Sprite(Assets.get("paypal"));
   paypal.anchor.set(0.5);
   paypal.scale.set(0.1);
