@@ -70,7 +70,7 @@ import { sound } from "@pixi/sound";
     option3: "Welch Wunder!",
   };
   const deutschfrage2 = {
-    question: "Was ist ein bekanntes deutsches Volkslied?",
+    question: "Was ist ein bekanntes\ndeutsches Volkslied?",
     optionCorrect: "Ich fühl mich Disko",
     option2: "Oh Tannenbaum",
     option3: "Die Vogelhochzeit",
