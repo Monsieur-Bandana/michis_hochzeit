@@ -145,7 +145,7 @@ import { sound } from "@pixi/sound";
     const michi = new Sprite(Assets.get("michi"));
     michi.label = "michi";
     michi.anchor.set(0.5);
-    michi.scale.set(2);
+    michi.scale.set(0.8);
     michi.y = app.screen.height - app.screen.height / 4;
     michi.x = app.screen.width - app.screen.width * 0.99;
     app.stage.addChild(michi);
@@ -561,12 +561,13 @@ import { sound } from "@pixi/sound";
     enemy_position = 4,
     enemy_scale = 0.1,
     arena = "arena1",
+    enemy_Height = 4,
   }) {
     // Gegnergenerierung
     const enemy = new Sprite(Assets.get(enemy_str));
     enemy.anchor.set(0.5);
     enemy.scale.set(enemy_scale);
-    enemy.y = app.screen.height / 4;
+    enemy.y = app.screen.height / enemy_Height;
     enemy.x = app.screen.width + 60;
     app.stage.addChild(enemy);
     curr_enemy = enemy;
@@ -729,14 +730,17 @@ import { sound } from "@pixi/sound";
       enemy_position: 3,
       arena: "arena2",
     });
+
     sound.stop("background");
     sound.play("background2");
     await executeFight({
       enemy_str: "bachelor",
       title: "Wirtschaftswissenschaften",
       question_map_list: [bachelorfrage1, bachelorfrage2],
-      enemy_position: 3,
       arena: "arena3",
+      enemy_position: 3,
+      enemy_Height: 3,
+      enemy_scale: 0.12,
     });
     sound.stop("background2");
     sound.play("background4");
@@ -793,6 +797,7 @@ import { sound } from "@pixi/sound";
       question_map_list: [fabrikfrage2, fabrikfrage1],
       enemy_position: 3,
       enemy_scale: 0.25,
+      enemy_Height: 3,
     });
 
     sound.stop("background3");
