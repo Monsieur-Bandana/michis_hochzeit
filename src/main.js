@@ -69,6 +69,12 @@ import { sound } from "@pixi/sound";
     option2: "Erstaunlich!",
     option3: "Welch Wunder!",
   };
+  const deutschfrage2 = {
+    question: "Was ist ein bekanntes deutsches Volkslied?",
+    optionCorrect: "Ich fühl mich Disko",
+    option2: "Oh Tannenbaum",
+    option3: "Die Vogelhochzeit",
+  };
   const bachelorfrage1 = {
     question: "An welchem Ort\nlernt es sich am besten?",
     optionCorrect: "Biertümpel",
@@ -726,7 +732,7 @@ import { sound } from "@pixi/sound";
       enemy_str: "deutscher",
       title: "Deutsch lernen",
       introwords: ["GRRAAAHHH!!!"],
-      question_map_list: [deutschfrage1],
+      question_map_list: [deutschfrage1, deutschfrage2],
       enemy_position: 3,
       arena: "arena2",
     });
