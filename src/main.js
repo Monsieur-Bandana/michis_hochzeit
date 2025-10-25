@@ -471,7 +471,7 @@ import { sound } from "@pixi/sound";
       heights[1].h
     );
     const text30 = createText(
-      `${heights[2].prefix}: ${answerWrong1}`,
+      `${heights[2].prefix}: ${answerWrong2}`,
       heights[2].h
     );
     curr_o1 = text10;
