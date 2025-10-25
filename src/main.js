@@ -125,7 +125,7 @@ import { sound } from "@pixi/sound";
     while (generatorNum < numberOfLifes) {
       const heart = new Sprite(Assets.get("herz"));
       heart.anchor.set(0.5);
-      heart.scale.set(0.025);
+      heart.scale.set(0.21);
       heart.label = "heart";
       heart.y = app.screen.height / 8;
       heart.x = app.screen.width / 4 + heartPosition;
@@ -198,6 +198,7 @@ import { sound } from "@pixi/sound";
         fontFamily: "Pixelletters",
         fontSize: 10,
         fill: "black",
+        resolution: 2,
       },
     });
     text1.anchor.set(0.5);
@@ -243,7 +244,7 @@ import { sound } from "@pixi/sound";
     );
     await slideTo(
       curr_michi,
-      app.screen.width - app.screen.width / 4,
+      app.screen.width / 4,
       app.screen.width - app.screen.height / 4,
       10
     );
@@ -252,12 +253,20 @@ import { sound } from "@pixi/sound";
     await slideTo(el, app.screen.width - 200, 0 - 200);
   }
 
-  function slideTo(sprite, targetX, targetY, speed = 5) {
+  function slideTo(sprite, targetX, targetY, speed = 10) {
     return new Promise((resolve) => {
       app.ticker.add(function move() {
         const dx = targetX - sprite.x;
         const dy = targetY - sprite.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 1) {
+          sprite.x = targetX;
+          sprite.y = targetY;
+          app.ticker.remove(move);
+          resolve();
+          return;
+        }
 
         // Normalize direction and move toward target
         sprite.x += (dx / dist) * speed;
@@ -303,6 +312,8 @@ import { sound } from "@pixi/sound";
     return new Promise(async (resolve) => {
       if (curr_enemy != null) {
         await new Promise((resolve) => {
+          app.stage.removeChild(curr_q);
+          showText({ text: "Neeeiiin", height: 1.95 });
           deathAnimation(curr_enemy);
           setTimeout(() => {
             resolve();
@@ -310,7 +321,12 @@ import { sound } from "@pixi/sound";
         });
       }
       await new Promise((resolve) => {
-        showText({ text: "Gratuliere, du darfst weiterleben", steady: true });
+        app.stage.removeChild(curr_sb);
+        showText({
+          text: "(Du hast die Frage richtig beantwortet)",
+          steady: true,
+          height: 1.95,
+        });
         setTimeout(() => {
           resolve();
         }, 1500);
@@ -355,11 +371,18 @@ import { sound } from "@pixi/sound";
 
     numberOfLifes = 3;
     return await new Promise(async (resolve) => {
-      await new Promise((resolve) => {
-        showText({
-          text: "Das war dein letztes Leben!",
+      await new Promise(async (resolve) => {
+        await showText({
+          text: "Das war dein letzter\nUrlaubstag!",
           height: 2,
           color: "white",
+          fontSize: 15,
+        });
+        showText({
+          text: "(in Europa)",
+          height: 2,
+          color: "white",
+          fontSize: 15,
         });
         setTimeout(() => {
           resolve();
@@ -373,7 +396,23 @@ import { sound } from "@pixi/sound";
   }
 
   async function looseFunction(an1, an2, an3, resolve) {
-    showText({ text: "Schade! Du verlierst ein Leben!" });
+    app.stage.removeChild(curr_q);
+    await showText({
+      text: "HAHAHAHA",
+      height: 1.95,
+    });
+    await showText({
+      text: "DAS WAR DIE FALSCHE ANTWORT",
+      height: 1.95,
+    });
+    await showText({
+      text: "Das kostet dich einen\ndeiner Urlaubstage!",
+      height: 1.95,
+    });
+    await showText({
+      text: "(in Europa)",
+      height: 1.95,
+    });
     numberOfLifes--;
     console.log(numberOfLifes);
     updateLives();
@@ -384,7 +423,12 @@ import { sound } from "@pixi/sound";
       return resolve("gameover");
     } /*else {
       await waitForAnswer(an1, an2, an3, resolve);
-    }*/
+      }*/
+    await showText({
+      text: "Zurück zur Frage:",
+      height: 1.95,
+    });
+    app.stage.addChild(curr_q);
   }
 
   async function waitForAnswer(an1, an2, an3, stay_in_arena, resolve) {
@@ -408,16 +452,28 @@ import { sound } from "@pixi/sound";
     answerWrong2,
     stay_in_arena
   ) {
-    const heights = [150, 75, 0];
-
+    const heights = [
+      { h: 150, prefix: "C" },
+      { h: 75, prefix: "B" },
+      { h: 0, prefix: "A" },
+    ];
     // Array zufällig mischen (Fisher–Yates)
     for (let i = heights.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [heights[i], heights[j]] = [heights[j], heights[i]];
     }
-    const text10 = createText(answerCorrect, heights[0]);
-    const text20 = createText(answerWrong1, heights[1]);
-    const text30 = createText(answerWrong2, heights[2]);
+    const text10 = createText(
+      `${heights[0].prefix}: ${answerCorrect}`,
+      heights[0].h
+    );
+    const text20 = createText(
+      `${heights[1].prefix}: ${answerWrong1}`,
+      heights[1].h
+    );
+    const text30 = createText(
+      `${heights[2].prefix}: ${answerWrong1}`,
+      heights[2].h
+    );
     curr_o1 = text10;
     curr_o2 = text20;
     curr_o3 = text30;
@@ -440,7 +496,7 @@ import { sound } from "@pixi/sound";
           fontFamily: font,
           fontSize: fontSize,
           fill: color,
-          resolution: 1,
+          resolution: 2,
         },
       });
       text1.anchor.set(0.5);
@@ -463,6 +519,7 @@ import { sound } from "@pixi/sound";
     enemy_str,
     title,
     question_map_list,
+    introwords = [],
     enemy_position = 4,
     enemy_scale = 0.1,
   }) {
@@ -498,10 +555,14 @@ import { sound } from "@pixi/sound";
     for (const el of question_map_list) {
       console.log(el);
       await slideIn(sp_b, "right", 2);
+      for (const el2 of introwords) {
+        await showText({ text: el2, height: 1.95 });
+      }
       curr_q = createGenericText(
         el.question,
         app.screen.width / 2,
-        app.screen.height / 1.95
+        app.screen.height / 1.95,
+        false
       );
 
       if (question_map_list.length == counter) {
@@ -537,6 +598,17 @@ import { sound } from "@pixi/sound";
     "Heute musst du dich noch\neinmal...",
     "... vier deiner erbittersten\nGegener stellen.",
     "Am Ende wartet\nein Preis auf dich",
+    "Zu Beginn des Spiels",
+    "erhältst du drei\nUrlaubstage",
+    "(in Europa)",
+    "Immer wenn du\neinen Fehler machst",
+    "kriegst du\neinen Urlaubstag...",
+    "(in Europa)",
+    "...abgezogen.",
+    "Wenn du keine Urlaubstage",
+    "(in Europa)",
+    "mehr hast...",
+    "...musst du wieder\nvon vorne anfangen",
     text5,
   ];
 
@@ -599,15 +671,19 @@ import { sound } from "@pixi/sound";
     sound.play("background", { loop: true, volume: 0.2 });
     createLives();
 
+    cur_challenge = 1;
+
     await executeFight({
       enemy_str: "geiger",
       title: "Geigenunterricht",
+      introwords: ["Hehehehehehe", "hehehe", "hehe", "he"],
       question_map_list: [geigenfrage1],
       enemy_scale: 0.15,
     });
     await executeFight({
       enemy_str: "deutscher",
       title: "Deutsch lernen",
+      introwords: ["GRRAAAHHH!!!"],
       question_map_list: [deutschfrage1],
       enemy_position: 3,
     });
@@ -626,8 +702,10 @@ import { sound } from "@pixi/sound";
       "Hey, pssst Michael",
       "Hallo hier oben!",
       "Klasse wie gut du vorankommst!",
-      "Zur Feier des Tages\nspendiere ich dir ...",
-      "... ein Extra Leben!",
+      "Zur Feier des Tages",
+      "spendiere ich dir einen...",
+      "... Extra Urlaubstag!",
+      "(in Europa)",
       "Viel Erfolg weiterhin",
       "Ach ja",
       "Schau gern mal wieder",
