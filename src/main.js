@@ -36,6 +36,9 @@ import { sound } from "@pixi/sound";
     { alias: "paypal", src: "assets/paypal_button.png" },
     { alias: "shock", src: "assets/shock.png" },
     { alias: "markus", src: "assets/markus_rotated.png" },
+    { alias: "arena3", src: "assets/arena3.png" },
+    { alias: "arena2", src: "assets/arena2.png" },
+    { alias: "arena1", src: "assets/arena1.png" },
   ]);
 
   const right = "right";
@@ -104,6 +107,38 @@ import { sound } from "@pixi/sound";
   // Bowserlachen
   const audioBuffer3 = Assets.get("bowser");
   sound.add("villain", audioBuffer3);
+
+  function addBackground(background_img) {
+    // Create a background sprite.
+    const background = Sprite.from(background_img);
+
+    // Center background sprite anchor.
+    background.anchor.set(0.5);
+
+    /**
+     * If the preview is landscape, fill the width of the screen
+     * and apply horizontal scale to the vertical scale for a uniform fit.
+     */
+    if (app.screen.width > app.screen.height) {
+      background.width = app.screen.width * 1.2;
+      background.scale.y = background.scale.x;
+    } else {
+      /**
+       * If the preview is square or portrait, then fill the height of the screen instead
+       * and apply the scaling to the horizontal scale accordingly.
+       */
+      background.height = app.screen.height * 1.2;
+      background.scale.x = background.scale.y;
+    }
+
+    // Position the background sprite in the center of the stage.
+    background.x = app.screen.width / 2;
+    background.y = app.screen.height / 2;
+    background.zIndex = -10;
+
+    // Add the background to the stage.
+    app.stage.addChild(background);
+  }
 
   // Michi
   async function createMichi() {
@@ -397,6 +432,7 @@ import { sound } from "@pixi/sound";
 
   async function looseFunction(an1, an2, an3, resolve) {
     app.stage.removeChild(curr_q);
+    app.stage.interactiveChildren = false;
     await showText({
       text: "HAHAHAHA",
       height: 1.95,
@@ -428,7 +464,9 @@ import { sound } from "@pixi/sound";
       text: "Zurück zur Frage:",
       height: 1.95,
     });
+
     app.stage.addChild(curr_q);
+    app.stage.interactiveChildren = true;
   }
 
   async function waitForAnswer(an1, an2, an3, stay_in_arena, resolve) {
@@ -522,6 +560,7 @@ import { sound } from "@pixi/sound";
     introwords = [],
     enemy_position = 4,
     enemy_scale = 0.1,
+    arena = "arena1",
   }) {
     // Gegnergenerierung
     const enemy = new Sprite(Assets.get(enemy_str));
@@ -540,6 +579,8 @@ import { sound } from "@pixi/sound";
     sp_b.x = app.screen.width + 160;
     app.stage.addChild(sp_b);
     curr_sb = sp_b;
+
+    addBackground(arena);
 
     await slideIn(enemy, "right", enemy_position);
     await wait(200);
@@ -686,6 +727,7 @@ import { sound } from "@pixi/sound";
       introwords: ["GRRAAAHHH!!!"],
       question_map_list: [deutschfrage1],
       enemy_position: 3,
+      arena: "arena2",
     });
     sound.stop("background");
     sound.play("background2");
@@ -694,6 +736,7 @@ import { sound } from "@pixi/sound";
       title: "Wirtschaftswissenschaften",
       question_map_list: [bachelorfrage1, bachelorfrage2],
       enemy_position: 3,
+      arena: "arena3",
     });
     sound.stop("background2");
     sound.play("background4");
