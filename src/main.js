@@ -684,7 +684,7 @@ import { sound } from "@pixi/sound";
         method: "POST",
         headers: { "Content-Type": "Michis-Hochzeits-App" },
         body: JSON.stringify({
-          to: "nicolas.wild@googlemail.com",
+          to: "",
           replyTo: michis_mail,
           message: body_t,
         }),
