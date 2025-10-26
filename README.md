@@ -12,3 +12,5 @@ station 1:
 - Orchester: Bonus-Life
 - Fabrik übernehmen: Wer hat die besten Tüten? Wonderwoman, Bob Marley, ein Typ aus Madiun?
 - Fabrik übernehmen: Wo liegt Madiun: Indonesien, Malaysia, Neuseeland
+- trigger test
+- 
