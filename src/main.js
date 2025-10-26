@@ -438,6 +438,8 @@ import { sound } from "@pixi/sound";
       removeEveryItemFromScreen({});
       await showText({ text: "Auf ein Neues!\nDiesmal klappts bestimmt!" });
       await createMichi();
+
+      app.stage.interactiveChildren = true;
       restartGame();
     });
   }
@@ -671,7 +673,7 @@ import { sound } from "@pixi/sound";
       await showText({ text: el, height: h, fontSize: size });
     }
   }
-
+  await wait(500);
   await createMichi();
   // Begrüsung
   await generateTextSequence(introTexts);
