@@ -1,31 +1,7 @@
 {
-  "name": "michis_hochzeit",
-  "version": "1.0.0",
-  "description": "- kammpfsystem: eine aus drei fragen beantworten\r - falls flasch, kommt thanos angeflogen und haut aufs maul",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "vite build",
-    "preview": "vite preview",
-    "main": "node main.js",
-    "dev": "vite"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Monsieur-Bandana/michis_hochzeit.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Monsieur-Bandana/michis_hochzeit/issues"
-  },
-  "homepage": "https://github.com/Monsieur-Bandana/michis_hochzeit#readme",
   "dependencies": {
     "@pixi/sound": "^6.0.1",
-    "pixi.js": "^8.14.0"
-  },
-  "devDependencies": {
+    "pixi.js": "^8.14.0",
     "vite": "^7.1.12"
   }
 }
