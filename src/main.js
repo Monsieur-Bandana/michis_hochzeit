@@ -99,6 +99,12 @@ import { sound } from "@pixi/sound";
     option2: "Java",
     option3: "Sumatra",
   };
+  const fabrikfrage3 = {
+    question: "Warum ist Indonesien ein\nbesserer Standort als Deutschland?",
+    optionCorrect: "Deutschland hat\nkein Timezone",
+    option2: "Billige Arbeitskräfte",
+    option3: "Nähe zur Familie",
+  };
 
   // Soundtrack
   const audioBuffer = Assets.get("soundtrack");
@@ -800,7 +806,7 @@ import { sound } from "@pixi/sound";
     await executeFight({
       enemy_str: "fabrik",
       title: "Fabrikleitung",
-      question_map_list: [fabrikfrage2, fabrikfrage1],
+      question_map_list: [fabrikfrage2, fabrikfrage1, fabrikfrage3],
       enemy_position: 3,
       enemy_scale: 0.25,
       enemy_Height: 3,
