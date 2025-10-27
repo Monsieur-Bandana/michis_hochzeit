@@ -18,6 +18,7 @@ import { sound } from "@pixi/sound";
     { alias: "magneto", src: "assets/magneto.mp3" },
     { alias: "romeo", src: "assets/romeo.mp3" },
     { alias: "adagio", src: "assets/adagio.mp3" },
+    { alias: "victory", src: "assets/victory.mp3" },
     { alias: "michi", src: "assets/michi.png" },
     //  { alias: "font", src: "fonts/ArcadeClassic.ttf" },
     { alias: "font", src: "fonts/Pixelletters.ttf" },
@@ -115,6 +116,8 @@ import { sound } from "@pixi/sound";
   sound.add("background3", audioBuffer4);
   const audioBuffer5 = Assets.get("adagio");
   sound.add("background4", audioBuffer5);
+  const audioBuffer6 = Assets.get("victory");
+  sound.add("background5", audioBuffer6);
 
   // Bowserlachen
   const audioBuffer3 = Assets.get("bowser");
@@ -352,6 +355,10 @@ import { sound } from "@pixi/sound";
           slideOut(el);
         }
         await slideOut(curr_sb);
+        await showText({
+          text: "(Du hast die Frage richtig beantwortet)",
+          height: 1.95,
+        });
         resolve();
       });
     }
@@ -608,9 +615,9 @@ import { sound } from "@pixi/sound";
     });
     var counter = 1;
     var stay_in_arena = true;
+    await slideIn(sp_b, "right", 2);
     for (const el of question_map_list) {
       console.log(el);
-      await slideIn(sp_b, "right", 2);
       for (const el2 of introwords) {
         await showText({ text: el2, height: 1.95 });
       }
@@ -630,6 +637,18 @@ import { sound } from "@pixi/sound";
         el.option3,
         stay_in_arena
       );
+      if (stay_in_arena) {
+        await slideIn(sp_b, "right", 2);
+        await generateTextSequence(
+          [
+            "Grrr, Na Gut",
+            "Diesmal bist du\nnoch davon gekommen.",
+            "Aber denk ja nicht\ndass es schon vorbei  ist",
+          ],
+          1.95,
+          10
+        );
+      }
       counter++;
     }
     cur_challenge++;
@@ -645,7 +664,7 @@ import { sound } from "@pixi/sound";
   }
 
   const text5 = "Bist du bereit?";
-  const introTexts = [
+  const introText1 = [
     "Lieber Michi!",
     "Herzlichen Glückwunsch\nzur gelungenen Hochzeit!",
     "Das war wirklich ein\ntoller Abend.",
@@ -655,6 +674,9 @@ import { sound } from "@pixi/sound";
     "... vier deiner erbittersten\nGegener stellen.",
     "Am Ende wartet\nein Preis auf dich",
     "Zu Beginn des Spiels",
+  ];
+
+  const introText2 = [
     "erhältst du drei\nUrlaubstage",
     "(in Europa)",
     "Immer wenn du\neinen Fehler machst",
@@ -676,7 +698,9 @@ import { sound } from "@pixi/sound";
   await wait(500);
   await createMichi();
   // Begrüsung
-  await generateTextSequence(introTexts);
+  await generateTextSequence(introText1);
+  createLives();
+  await generateTextSequence(introText2);
 
   async function sendMail(body_t) {
     // mail code here
@@ -693,10 +717,14 @@ import { sound } from "@pixi/sound";
       });
 
       removeEveryItemFromScreen({});
-      showText({
-        text: "Anfrage erfolgreich versendet!\nDu kannst die App jetzt schließen!",
-        steady: true,
-      });
+      const goodbySequence = [
+        "Danke für die 3000 Euro!",
+        "Spaß!",
+        "Deine Anfrage wurde\nerfolgreich versendet",
+        "Dein Gewinn wird dir in\nKürze auf Paypal zugesendet.",
+        "Ich hoffe du hattest Spaß\nmit meinem kleinen Quiz.",
+      ];
+      generateTextSequence(goodbySequence);
     } catch (e) {
       console.error(e);
       showText({
@@ -707,6 +735,7 @@ import { sound } from "@pixi/sound";
   }
 
   async function restartGame() {
+    updateLives();
     // Bereit Button
     const bereit = new Sprite(Assets.get("bereit"));
     bereit.anchor.set(0.5);
@@ -725,7 +754,6 @@ import { sound } from "@pixi/sound";
     app.stage.removeChild(bereit);
 
     sound.play("background", { loop: true, volume: 0.2 });
-    createLives();
 
     cur_challenge = 1;
 
@@ -749,7 +777,7 @@ import { sound } from "@pixi/sound";
     sound.play("background2");
     await executeFight({
       enemy_str: "bachelor",
-      title: "Wirtschaftswissenschaften",
+      title: "Wiwi-Bachelor",
       question_map_list: [bachelorfrage1, bachelorfrage2],
       arena: "arena3",
       enemy_position: 3,
@@ -818,6 +846,8 @@ import { sound } from "@pixi/sound";
   }
 
   await restartGame();
+
+  sound.play("background5");
   const outrTexts = [
     "Herzlichen Glückwunsch",
     "Du hast alle Herausforderungen\nmit Bravur gemeistert!",
