@@ -13,8 +13,7 @@ import { Input } from "@pixi/ui";
   // Then adding the application's canvas to the DOM body.
   document.body.appendChild(app.canvas);
 
-  // Load Assets
-  await Assets.load([
+  const assetlist = [
     { alias: "soundtrack", src: "assets/soundtrack.mp3" },
     { alias: "magneto", src: "assets/magneto.mp3" },
     { alias: "romeo", src: "assets/romeo.mp3" },
@@ -44,7 +43,62 @@ import { Input } from "@pixi/ui";
     { alias: "input", src: "assets/input.png" },
 
     { alias: "error_mes", src: "assets/error_mes.png" },
-  ]);
+  ];
+
+  function createGenericText(
+    text,
+    x_axis,
+    y_axis,
+    slideInAnimation = true,
+    dest = "set"
+  ) {
+    const text1 = new Text({
+      text,
+      style: {
+        fontFamily: "Pixelletters",
+        fontSize: 10,
+        fill: "black",
+        resolution: 2,
+      },
+    });
+    text1.anchor.set(0.5);
+    text1.scale.set(2);
+    text1.y = y_axis;
+
+    text1.x = slideInAnimation ? app.screen.width + 60 : app.screen.width / 2;
+
+    text1.eventMode = "static";
+
+    app.stage.addChild(text1);
+    if (slideInAnimation) {
+      dest == "unset"
+        ? slideIn(text1, "right", 10)
+        : slideIn(text1, "right", 10, x_axis);
+    }
+    return text1;
+  }
+
+  // 1) einmal erstellen & anzeigen
+  let loadText = createGenericText(
+    "lade ... 0%",
+    app.screen.width / 2,
+    app.screen.height / 2,
+    false
+  );
+  app.stage.addChild(loadText);
+
+  // 2) pro Asset laden und Prozent updaten
+  const total = assetlist.length;
+  let loaded = 0;
+
+  for (const el of assetlist) {
+    await Assets.load(el); // wartet auf einzelnes Asset
+    loaded++;
+    const pct = Math.min(100, Math.round((loaded / total) * 100));
+    loadText.text = `lade ... ${pct}%`;
+  }
+
+  app.stage.removeChild(loadText);
 
   const right = "right";
   const left = "left";
@@ -240,39 +294,6 @@ import { Input } from "@pixi/ui";
   async function slideOut(character) {
     const desti = app.screen.width + 1000;
     await slideIn(character, "left", 4, desti);
-  }
-
-  function createGenericText(
-    text,
-    x_axis,
-    y_axis,
-    slideInAnimation = true,
-    dest = "set"
-  ) {
-    const text1 = new Text({
-      text,
-      style: {
-        fontFamily: "Pixelletters",
-        fontSize: 10,
-        fill: "black",
-        resolution: 2,
-      },
-    });
-    text1.anchor.set(0.5);
-    text1.scale.set(2);
-    text1.y = y_axis;
-
-    text1.x = slideInAnimation ? app.screen.width + 60 : app.screen.width / 2;
-
-    text1.eventMode = "static";
-
-    app.stage.addChild(text1);
-    if (slideInAnimation) {
-      dest == "unset"
-        ? slideIn(text1, "right", 10)
-        : slideIn(text1, "right", 10, x_axis);
-    }
-    return text1;
   }
 
   // generiert die Antwortmöglichkeiten
