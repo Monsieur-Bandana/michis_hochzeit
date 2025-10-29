@@ -1,5 +1,6 @@
 import { Application, Assets, Sprite, Container, Text } from "pixi.js";
 import { sound } from "@pixi/sound";
+import { Input } from "@pixi/ui";
 
 // Asynchronous IIFE
 (async () => {
@@ -40,6 +41,9 @@ import { sound } from "@pixi/sound";
     { alias: "arena3", src: "assets/arena3.png" },
     { alias: "arena2", src: "assets/arena2.png" },
     { alias: "arena1", src: "assets/arena1.png" },
+    { alias: "input", src: "assets/input.png" },
+
+    { alias: "error_mes", src: "assets/error_mes.png" },
   ]);
 
   const right = "right";
@@ -54,8 +58,11 @@ import { sound } from "@pixi/sound";
   var curr_o1;
   var curr_o2;
   var curr_o3;
-  var michis_user_name = "";
-  var michis_mail = "puriwild@googlemail.com";
+  var michael_data = {
+    michis_name: "",
+    michis_mail: "",
+    sicherheits_antwort: "",
+  };
 
   // Setup der Fragestellungen
   const geigenfrage1 = {
@@ -698,40 +705,68 @@ import { sound } from "@pixi/sound";
   await wait(500);
   await createMichi();
   // Begrüsung
+
   await generateTextSequence(introText1);
   createLives();
   await generateTextSequence(introText2);
 
-  async function sendMail(body_t) {
+  async function sendMail({ paypa_yes }) {
     // mail code here
 
-    try {
-      await fetch("", {
+    const connection_text = createGenericText(
+      "Verbinde mit Server...",
+      app.screen.width / 4,
+      app.screen.height / 12,
+      false
+    );
+    await new Promise(async (resolve) => {
+      const res = await fetch("http://172.16.47.229:8080/verify", {
         method: "POST",
-        headers: { "Content-Type": "Michis-Hochzeits-App" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: "",
-          replyTo: michis_mail,
-          message: body_t,
+          answer: michael_data["sicherheits_antwort"],
+          player: michael_data["michis_name"],
+          paypal_acc: michael_data["michis_mail"],
+          website: "",
+          no_paypal: paypa_yes,
         }),
       });
 
-      removeEveryItemFromScreen({});
-      const goodbySequence = [
-        "Danke für die 3000 Euro!",
-        "Spaß!",
-        "Deine Anfrage wurde\nerfolgreich versendet",
-        "Dein Gewinn wird dir in\nKürze auf Paypal zugesendet.",
-        "Ich hoffe du hattest Spaß\nmit meinem kleinen Quiz.",
-      ];
-      generateTextSequence(goodbySequence);
-    } catch (e) {
-      console.error(e);
-      showText({
-        text: "Senden fehlgeschlagen.\nBitte später erneut versuchen.",
-        steady: true,
-      });
-    }
+      const res_text = await res.text();
+      let res_data = {};
+      try {
+        res_data = JSON.parse(res_text);
+      } catch {
+        res_data = {};
+      }
+      console.log({ status: res.status, ok: !!res_data.ok, raw: res_text });
+      if (res_data.ok) {
+        resolve();
+      } else {
+        const error_mes = new Sprite(Assets.get("error_mes"));
+        error_mes.anchor.set(0.5);
+        error_mes.scale.set(0.2);
+        error_mes.y = app.screen.height / 2;
+        error_mes.x = app.screen.width / 2;
+        error_mes.eventMode = "static";
+        app.stage.addChild(error_mes);
+
+        error_mes.on("pointerdown", () => {
+          app.stage.removeChild(error_mes);
+          app.stage.removeChild(connection_text);
+        });
+      }
+    });
+
+    removeEveryItemFromScreen({});
+    const goodbySequence = [
+      "Danke für die 3000 Euro!",
+      "Spaß!",
+      "Deine Anfrage wurde\nerfolgreich versendet",
+      "Dein Gewinn wird dir in\nKürze auf Paypal zugesendet.",
+      "Ich hoffe du hattest Spaß\nmit meinem kleinen Quiz.",
+    ];
+    generateTextSequence(goodbySequence);
   }
 
   async function restartGame() {
@@ -871,43 +906,80 @@ import { sound } from "@pixi/sound";
     });
   });
   await removeEveryItemFromScreen({});
-  await showText({
-    text: "Name deines Nutzeraccounts",
-    steady: true,
-    height: 4.5,
-  });
-  await showText({
-    text: "E-Mail deines Nutzeraccounts",
-    steady: true,
-    height: 3,
-  });
+
+  function createInputField(flag, val) {
+    const inp = new Sprite(Assets.get("input"));
+    inp.scale.set(0.15);
+    inp.anchor.set(0.1, 0);
+    var inputF = new Input({
+      bg: inp,
+      padding: [0, 0, 0, 0],
+      placeholder: flag,
+      textStyle: { fontSize: 15 },
+      addMask: false,
+
+      // alternatively you can use [11, 11, 11, 11] or [11, 11] or just 11
+    });
+    inputF.x = app.screen.width / 5;
+
+    inputF.onChange.connect((text) => {
+      michael_data[val] = text;
+      console.log(val, text);
+    });
+
+    return inputF;
+  }
+
+  const input1 = createInputField("Name deines Nutzeraccounts", "michis_name");
+
+  const input2 = createInputField(
+    "E-Mail deines Nutzeraccounts",
+    "michis_mail"
+  );
+
+  const line3 = createGenericText(
+    "Sicherheitsfrage:\nWie hieß dein letzer\nMitbewohner in Würzburg\nmit Vornamen?",
+    app.screen.width / 2
+  );
+  const input3 = createInputField(
+    "Antwort Sicherheitsfrage",
+    "sicherheits_antwort"
+  );
   const paypal = new Sprite(Assets.get("paypal"));
   paypal.anchor.set(0.5);
   paypal.scale.set(0.1);
-  paypal.y = app.screen.height / 2;
-  paypal.x = app.screen.width / 2;
-  app.stage.addChild(paypal);
   paypal.eventMode = "static";
+
+  paypal.x = app.screen.width / 2;
   paypal.on("pointerdown", () => {
-    sendMail(
-      `paypal Anfrage\nAdresse: ${michis_mail}\nName: ${michis_user_name}`
-    );
+    sendMail({
+      paypa_yes: "True",
+    });
   });
 
   const shock = new Sprite(Assets.get("shock"));
   shock.anchor.set(0.5);
-  shock.scale.set(0.3);
-  shock.y = app.screen.height / 1.5;
+  shock.scale.set(0.09);
+  shock.eventMode = "static";
   shock.x = app.screen.width / 2;
-  app.stage.addChild(shock);
-  const no_pp_request = createText(
-    "Wie du hast kein Paypal?!\nBitte hier klicken",
-    20,
-    false
-  );
-  no_pp_request.on("pointerdown", () => {
-    sendMail(
-      `Habe leider kein Paypal, schreib mir am besten auf Whatsapp\nGrüße ${michis_user_name}`
-    );
+
+  function createForm(listOfSprites) {
+    const area = app.screen.height - 200;
+    const padding = area / listOfSprites.length;
+    var h = 0;
+    for (const el of listOfSprites) {
+      //el.x = app.screen.width / 2;
+      el.y = app.screen.height - app.screen.height + 100 + h * padding;
+      h++;
+      app.stage.addChild(el);
+    }
+  }
+
+  const listOfSprits = [input1, input2, line3, input3, paypal, shock];
+  createForm(listOfSprits);
+  shock.on("pointerdown", () => {
+    sendMail({
+      paypa_yes: "False",
+    });
   });
 })();
