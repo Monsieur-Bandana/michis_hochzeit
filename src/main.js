@@ -43,6 +43,7 @@ import { Input } from "@pixi/ui";
     { alias: "input", src: "assets/input.png" },
 
     { alias: "error_mes", src: "assets/error_mes.png" },
+    { alias: "error_mes2", src: "assets/error_mes2.png" },
   ];
 
   function createGenericText(
@@ -724,6 +725,7 @@ import { Input } from "@pixi/ui";
     }
   }
   await wait(500);
+
   await createMichi();
   // Begrüsung
 
@@ -741,39 +743,57 @@ import { Input } from "@pixi/ui";
       false
     );
     await new Promise(async (resolve) => {
-      const res = await fetch("http://172.16.47.229:8080/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          answer: michael_data["sicherheits_antwort"],
-          player: michael_data["michis_name"],
-          paypal_acc: michael_data["michis_mail"],
-          website: "",
-          no_paypal: paypa_yes,
-        }),
-      });
-
-      const res_text = await res.text();
-      let res_data = {};
       try {
-        res_data = JSON.parse(res_text);
-      } catch {
-        res_data = {};
-      }
-      console.log({ status: res.status, ok: !!res_data.ok, raw: res_text });
-      if (res_data.ok) {
-        resolve();
-      } else {
-        const error_mes = new Sprite(Assets.get("error_mes"));
-        error_mes.anchor.set(0.5);
-        error_mes.scale.set(0.2);
-        error_mes.y = app.screen.height / 2;
-        error_mes.x = app.screen.width / 2;
-        error_mes.eventMode = "static";
-        app.stage.addChild(error_mes);
+        const res = await fetch(
+          "https://michis-hochzeit-backend-840610411426.asia-southeast2.run.app/verify",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              answer: michael_data["sicherheits_antwort"],
+              player: michael_data["michis_name"],
+              paypal_acc: michael_data["michis_mail"],
+              website: "",
+              no_paypal: paypa_yes,
+            }),
+          }
+        );
 
-        error_mes.on("pointerdown", () => {
-          app.stage.removeChild(error_mes);
+        const res_text = await res.text();
+        let res_data = {};
+        try {
+          res_data = JSON.parse(res_text);
+        } catch {
+          res_data = {};
+        }
+        console.log({ status: res.status, ok: !!res_data.ok, raw: res_text });
+        if (res_data.ok) {
+          resolve();
+        } else {
+          const error_mes = new Sprite(Assets.get("error_mes"));
+          error_mes.anchor.set(0.5);
+          error_mes.scale.set(0.2);
+          error_mes.y = app.screen.height / 2;
+          error_mes.x = app.screen.width / 2;
+          error_mes.eventMode = "static";
+          app.stage.addChild(error_mes);
+
+          error_mes.on("pointerdown", () => {
+            app.stage.removeChild(error_mes);
+            app.stage.removeChild(connection_text);
+          });
+        }
+      } catch (error) {
+        const error_mes2 = new Sprite(Assets.get("error_mes2"));
+        error_mes2.anchor.set(0.5);
+        error_mes2.scale.set(0.2);
+        error_mes2.y = app.screen.height / 2;
+        error_mes2.x = app.screen.width / 2;
+        error_mes2.eventMode = "static";
+        app.stage.addChild(error_mes2);
+
+        error_mes2.on("pointerdown", () => {
+          app.stage.removeChild(error_mes2);
           app.stage.removeChild(connection_text);
         });
       }
@@ -812,7 +832,6 @@ import { Input } from "@pixi/ui";
     sound.play("background", { loop: true, volume: 0.2 });
 
     cur_challenge = 1;
-
     await executeFight({
       enemy_str: "geiger",
       title: "Geigenunterricht",
@@ -926,6 +945,7 @@ import { Input } from "@pixi/ui";
       resolve();
     });
   });
+
   await removeEveryItemFromScreen({});
 
   function createInputField(flag, val) {
