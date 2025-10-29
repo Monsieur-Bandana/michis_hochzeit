@@ -616,7 +616,7 @@ import { Input } from "@pixi/ui";
     // Gegnergenerierung
     const enemy = new Sprite(Assets.get(enemy_str));
     enemy.anchor.set(0.5);
-    enemy.scale.set(enemy_scale);
+    enemy.scale.set(enemy_scale * 4);
     enemy.y = app.screen.height / enemy_Height;
     enemy.x = app.screen.width + 60;
     app.stage.addChild(enemy);
@@ -625,9 +625,9 @@ import { Input } from "@pixi/ui";
     // Sprechblase
     const sp_b = new Sprite(Assets.get("bubble"));
     sp_b.anchor.set(0.5);
-    sp_b.scale.set(0.1);
+    sp_b.scale.set(0.13);
     sp_b.y = app.screen.height / 2;
-    sp_b.x = app.screen.width + 160;
+    sp_b.x = app.screen.width + 200;
     app.stage.addChild(sp_b);
     curr_sb = sp_b;
 
@@ -772,7 +772,7 @@ import { Input } from "@pixi/ui";
         } else {
           const error_mes = new Sprite(Assets.get("error_mes"));
           error_mes.anchor.set(0.5);
-          error_mes.scale.set(0.2);
+          error_mes.scale.set(0.8);
           error_mes.y = app.screen.height / 2;
           error_mes.x = app.screen.width / 2;
           error_mes.eventMode = "static";
@@ -837,7 +837,7 @@ import { Input } from "@pixi/ui";
       title: "Geigenunterricht",
       introwords: ["Hehehehehehe", "hehehe", "hehe", "he"],
       question_map_list: [geigenfrage1],
-      enemy_scale: 0.15,
+      enemy_scale: 0.16,
     });
     await executeFight({
       enemy_str: "deutscher",
@@ -845,11 +845,12 @@ import { Input } from "@pixi/ui";
       introwords: ["GRRAAAHHH!!!"],
       question_map_list: [deutschfrage1, deutschfrage2],
       enemy_position: 3,
+      enemy_scale: 0.12,
       arena: "arena2",
     });
 
     sound.stop("background");
-    sound.play("background2");
+    sound.play("background2", { loop: true, volume: 0.2 });
     await executeFight({
       enemy_str: "bachelor",
       title: "Wiwi-Bachelor",
@@ -869,6 +870,9 @@ import { Input } from "@pixi/ui";
       "Zur Feier des Tages",
       "spendiere ich dir einen...",
       "... Extra Urlaubstag!",
+    ];
+
+    const markusTexts2 = [
       "(in Europa)",
       "Viel Erfolg weiterhin",
       "Ach ja",
@@ -880,7 +884,7 @@ import { Input } from "@pixi/ui";
 
     const sp_b = new Sprite(Assets.get("bubble"));
     sp_b.anchor.set(0.5);
-    sp_b.scale.set(0.1);
+    sp_b.scale.set(0.13);
     sp_b.y = app.screen.height / 2;
     sp_b.x = app.screen.width + 160;
     app.stage.addChild(sp_b);
@@ -901,13 +905,14 @@ import { Input } from "@pixi/ui";
     await generateTextSequence(markusTexts, 1.95, 10);
     numberOfLifes++;
     updateLives();
+    await generateTextSequence(markusTexts2, 1.95, 10);
 
     await slideOut(sp_b);
     await slideOut(markus);
 
     sound.stop("background4");
 
-    sound.play("background3");
+    sound.play("background3", { loop: true });
     await executeFight({
       enemy_str: "fabrik",
       title: "Fabrikleitung",
@@ -925,7 +930,7 @@ import { Input } from "@pixi/ui";
   sound.play("background5");
   const outrTexts = [
     "Herzlichen Glückwunsch",
-    "Du hast alle Herausforderungen\nmit Bravur gemeistert!",
+    "Du hast alle\nHerausforderungen\nmit Bravur gemeistert!",
     "Hier deine Belohnung",
   ];
   await generateTextSequence(outrTexts);
@@ -934,7 +939,7 @@ import { Input } from "@pixi/ui";
 
   const schatz = new Sprite(Assets.get("schatz"));
   schatz.anchor.set(0.5);
-  schatz.scale.set(0.2);
+  schatz.scale.set(0.8);
   schatz.y = app.screen.height / 2;
   schatz.x = app.screen.width / 2;
   app.stage.addChild(schatz);
