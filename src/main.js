@@ -603,6 +603,20 @@ import { Input } from "@pixi/ui";
     });
   }
 
+  const dialogue1 = [
+    "Grrr, Na Gut",
+    "Diesmal bist du\nnoch davon gekommen.",
+    "Aber denk ja nicht\ndass es schon vorbei ist",
+  ];
+  const dialogue2 = [
+    "Du schummelst doch!",
+    "So leicht lasse\nich dich nicht...",
+    "...gewinnen",
+  ];
+  const dialogue3 = ["Einen hab ich noch!\nEinen hab ich noch!"];
+
+  const dialoguePool = [dialogue1, dialogue2, dialogue3];
+
   async function executeFight({
     enemy_str,
     title,
@@ -668,15 +682,9 @@ import { Input } from "@pixi/ui";
       );
       if (stay_in_arena) {
         await slideIn(sp_b, "right", 2);
-        await generateTextSequence(
-          [
-            "Grrr, Na Gut",
-            "Diesmal bist du\nnoch davon gekommen.",
-            "Aber denk ja nicht\ndass es schon vorbei  ist",
-          ],
-          1.95,
-          10
-        );
+        const randomDialogue =
+          dialoguePool[Math.floor(Math.random() * dialoguePool.length)];
+        await generateTextSequence(randomDialogue, 1.95, 10);
       }
       counter++;
     }
