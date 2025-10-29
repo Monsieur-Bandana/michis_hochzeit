@@ -639,7 +639,7 @@ import { Input } from "@pixi/ui";
     // Sprechblase
     const sp_b = new Sprite(Assets.get("bubble"));
     sp_b.anchor.set(0.5);
-    sp_b.scale.set(0.13);
+    sp_b.scale.set(0.115);
     sp_b.y = app.screen.height / 2;
     sp_b.x = app.screen.width + 200;
     app.stage.addChild(sp_b);
@@ -892,7 +892,7 @@ import { Input } from "@pixi/ui";
 
     const sp_b = new Sprite(Assets.get("bubble"));
     sp_b.anchor.set(0.5);
-    sp_b.scale.set(0.13);
+    sp_b.scale.set(0.115);
     sp_b.y = app.screen.height / 2;
     sp_b.x = app.screen.width + 160;
     app.stage.addChild(sp_b);
@@ -920,7 +920,7 @@ import { Input } from "@pixi/ui";
 
     sound.stop("background4");
 
-    sound.play("background3", { loop: true });
+    sound.play("background3", { loop: true, volume: 0.8 });
     await executeFight({
       enemy_str: "fabrik",
       title: "Fabrikleitung",
@@ -935,7 +935,7 @@ import { Input } from "@pixi/ui";
 
   await restartGame();
 
-  sound.play("background5");
+  sound.play("background5", { loop: true, volume: 0.5 });
   const outrTexts = [
     "Herzlichen Glückwunsch",
     "Du hast alle\nHerausforderungen\nmit Bravur gemeistert!",
