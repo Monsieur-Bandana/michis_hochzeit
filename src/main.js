@@ -42,6 +42,7 @@ import { Input } from "@pixi/ui";
     { alias: "arena1", src: "assets/arena1.png" },
     { alias: "input", src: "assets/input.png" },
 
+    //{ alias: "arena4", src: "assets/arena4.png" },
     { alias: "error_mes", src: "assets/error_mes.png" },
     { alias: "error_mes2", src: "assets/error_mes2.png" },
   ];
@@ -615,7 +616,7 @@ import { Input } from "@pixi/ui";
   ];
   const dialogue3 = ["Einen hab ich noch!\nEinen hab ich noch!"];
 
-  const dialoguePool = [dialogue1, dialogue2, dialogue3];
+  const dialoguePool = [dialogue1, dialogue2];
 
   async function executeFight({
     enemy_str,
@@ -936,6 +937,8 @@ import { Input } from "@pixi/ui";
   await restartGame();
 
   sound.play("background5", { loop: true, volume: 0.5 });
+
+  // addBackground("arena4");
   const outrTexts = [
     "Herzlichen Glückwunsch",
     "Du hast alle\nHerausforderungen\nmit Bravur gemeistert!",
