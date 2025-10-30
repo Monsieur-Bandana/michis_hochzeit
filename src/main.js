@@ -1009,14 +1009,20 @@ import { Input } from "@pixi/ui";
       // alternatively you can use [11, 11, 11, 11] or [11, 11] or just 11
     });
     inputF.x = app.screen.width / 5;
-
-    inputF.onChange.connect((text) => {
+    const apply = (text) => {
       michael_data[val] = text;
-    });
+      // möglichst wenig Arbeit hier drin
+      // console.log knapp halten:
+      console.log("name:", michael_data[val]);
+    };
+
+    // ✅ Signal gibt dir den aktuellen Text
+    inputF.onChange.connect((text) => apply(text));
+
     return inputF;
   }
 
-  showText({ text: "version A.2", steady: true, height: 5 });
+  showText({ text: "version A.3", steady: true, height: 5 });
 
   const input1 = createInputField("Name deines Nutzeraccounts", "michis_name");
 
