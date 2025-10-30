@@ -47,6 +47,8 @@ import { Input } from "@pixi/ui";
     { alias: "error_mes2", src: "assets/error_mes2.png" },
   ];
 
+  app.ticker.maxFPS = 24;
+
   function createGenericText(
     text,
     x_axis,
@@ -744,7 +746,7 @@ import { Input } from "@pixi/ui";
 */
   async function sendMail({ paypa_yes }) {
     // mail code here
-
+    console.log(michael_data["michis_name"]);
     app.stage.interactiveChildren = false;
     const connection_text = createGenericText(
       "Verbinde mit Server...",
@@ -981,14 +983,15 @@ import { Input } from "@pixi/ui";
       // alternatively you can use [11, 11, 11, 11] or [11, 11] or just 11
     });
     inputF.x = app.screen.width / 5;
-
+    let temp = "";
     inputF.onChange.connect((text) => {
-      michael_data[val] = text;
+      temp = text;
     });
+
     return inputF;
   }
 
-  showText({ text: "version A", steady: true, height: 5 });
+  showText({ text: "version A.1", steady: true, height: 5 });
 
   const input1 = createInputField("Name deines Nutzeraccounts", "michis_name");
 
