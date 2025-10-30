@@ -995,6 +995,8 @@ import { Input } from "@pixi/ui";
     return el;
   }
 
+  showText({ text: "version A", steady: true });
+
   const input1 = createInputField("Name deines Nutzeraccounts", "michis_name");
 
   const input2 = createInputField(
