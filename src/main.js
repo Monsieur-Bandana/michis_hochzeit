@@ -969,9 +969,35 @@ import { Input } from "@pixi/ui";
 
   await removeEveryItemFromScreen({});
 */
+  Assets.unload([
+    { alias: "soundtrack", src: "assets/soundtrack.mp3" },
+    { alias: "magneto", src: "assets/magneto.mp3" },
+    { alias: "romeo", src: "assets/romeo.mp3" },
+    { alias: "adagio", src: "assets/adagio.mp3" },
+    { alias: "victory", src: "assets/victory.mp3" },
+    { alias: "michi", src: "assets/michi.png" },
+    //  { alias: "font", src: "fonts/ArcadeClassic.ttf" },
+    { alias: "font", src: "fonts/Pixelletters.ttf" },
+    { alias: "font", src: "fonts/GloriousFree.ttf" },
+    { alias: "bereit", src: "assets/bereit.png" },
+    { alias: "herz", src: "assets/herz.png" },
+    { alias: "geiger", src: "assets/geiger.png" },
+    { alias: "deutscher", src: "assets/deutscher.png" },
+    { alias: "bubble", src: "assets/speechbubble.png" },
+    { alias: "bachelor", src: "assets/bachelor.png" },
+    { alias: "weiter", src: "assets/Weiter.png" },
+    { alias: "fabrik", src: "assets/fabrik.png" },
+    { alias: "schatz", src: "assets/schatz.png" },
+    { alias: "thanos", src: "assets/thanos.png" },
+    { alias: "bowser", src: "assets/bowser.mp3" },
+    { alias: "markus", src: "assets/markus_rotated.png" },
+    { alias: "arena3", src: "assets/arena3.png" },
+    { alias: "arena2", src: "assets/arena2.png" },
+    { alias: "arena1", src: "assets/arena1.png" },
+  ]);
   function createInputField(flag, val) {
     const inp = new Sprite(Assets.get("input"));
-    inp.scale.set(0.15);
+    inp.scale.set(0.3);
     inp.anchor.set(0.1, 0);
     var inputF = new Input({
       bg: inp,
@@ -983,15 +1009,14 @@ import { Input } from "@pixi/ui";
       // alternatively you can use [11, 11, 11, 11] or [11, 11] or just 11
     });
     inputF.x = app.screen.width / 5;
-    let temp = "";
-    inputF.onChange.connect((text) => {
-      temp = text;
-    });
 
+    inputF.onChange.connect((text) => {
+      michael_data[val] = text;
+    });
     return inputF;
   }
 
-  showText({ text: "version A.1", steady: true, height: 5 });
+  showText({ text: "version A.2", steady: true, height: 5 });
 
   const input1 = createInputField("Name deines Nutzeraccounts", "michis_name");
 
@@ -1010,7 +1035,7 @@ import { Input } from "@pixi/ui";
   );
   const paypal = new Sprite(Assets.get("paypal"));
   paypal.anchor.set(0.5);
-  paypal.scale.set(0.1);
+  paypal.scale.set(0.2);
   paypal.eventMode = "static";
 
   paypal.x = app.screen.width / 2;
@@ -1022,7 +1047,7 @@ import { Input } from "@pixi/ui";
 
   const shock = new Sprite(Assets.get("shock"));
   shock.anchor.set(0.5);
-  shock.scale.set(0.09);
+  shock.scale.set(0.18);
   shock.eventMode = "static";
   shock.x = app.screen.width / 2;
 
