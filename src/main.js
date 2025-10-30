@@ -985,8 +985,14 @@ import { Input } from "@pixi/ui";
     inputF.onChange.connect((text) => {
       michael_data[val] = text;
     });
+    const el = inputF;
+    el.setAttribute("autocapitalize", "off");
+    el.setAttribute("autocomplete", "off");
+    el.setAttribute("autocorrect", "off");
+    el.setAttribute("spellcheck", "false");
+    el.setAttribute("inputmode", "text");
 
-    return inputF;
+    return el;
   }
 
   const input1 = createInputField("Name deines Nutzeraccounts", "michis_name");
