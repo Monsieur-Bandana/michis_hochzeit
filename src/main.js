@@ -735,15 +735,7 @@ import { Input } from "@pixi/ui";
       await showText({ text: el, height: h, fontSize: size });
     }
   }
-  await wait(500);
-  /*
-  await createMichi();
-  // Begrüsung
 
-  await generateTextSequence(introText1);
-  createLives();
-  await generateTextSequence(introText2);
-*/
   async function sendMail({ paypa_yes }) {
     // mail code here
     console.log(michael_data.sicherheits_antwort);
@@ -813,6 +805,7 @@ import { Input } from "@pixi/ui";
       }
     });
 
+    document.getElementById("form_sheet_helper").style.display = "none";
     removeEveryItemFromScreen({});
     const goodbySequence = [
       "Danke für die 3000 Euro!",
@@ -823,7 +816,15 @@ import { Input } from "@pixi/ui";
     ];
     generateTextSequence(goodbySequence);
   }
-  /*
+
+  await wait(500);
+
+  await createMichi();
+  // Begrüsung
+  await generateTextSequence(introText1);
+  createLives();
+  await generateTextSequence(introText2);
+
   async function restartGame() {
     updateLives();
     // Bereit Button
@@ -968,7 +969,7 @@ import { Input } from "@pixi/ui";
   });
 
   await removeEveryItemFromScreen({});
-*/
+
   Assets.unload([
     { alias: "soundtrack", src: "assets/soundtrack.mp3" },
     { alias: "magneto", src: "assets/magneto.mp3" },
