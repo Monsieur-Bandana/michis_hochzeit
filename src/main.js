@@ -159,6 +159,12 @@ import { Input } from "@pixi/ui";
     option2: "Regnerisch",
     option3: "Sonnig",
   };
+  const bachelorfrage3 = {
+    question: "Was passierte während\ndeiner Thesis?",
+    optionCorrect: "Ironman stirbt",
+    option2: "Logan stirbt",
+    option3: "Die Queen stirbt",
+  };
   const fabrikfrage1 = {
     question: "Wer hat die besten Tüten?",
     optionCorrect: "Ein Typ aus Madiun",
@@ -875,7 +881,7 @@ import { Input } from "@pixi/ui";
     await executeFight({
       enemy_str: "bachelor",
       title: "Wiwi-Bachelor",
-      question_map_list: [bachelorfrage1, bachelorfrage2],
+      question_map_list: [bachelorfrage1, bachelorfrage3],
       arena: "arena3",
       enemy_position: 3,
       enemy_Height: 3,
