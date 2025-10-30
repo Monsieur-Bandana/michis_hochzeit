@@ -792,6 +792,7 @@ import { Input } from "@pixi/ui";
           error_mes.scale.set(0.8);
           error_mes.y = app.screen.height / 2;
           error_mes.x = app.screen.width / 2;
+          error_mes.zIndex = 100;
           error_mes.eventMode = "static";
           app.stage.addChild(error_mes);
 
@@ -807,6 +808,7 @@ import { Input } from "@pixi/ui";
         error_mes2.scale.set(0.2);
         error_mes2.y = app.screen.height / 2;
         error_mes2.x = app.screen.width / 2;
+        error_mes2.zIndex = 100;
         error_mes2.eventMode = "static";
         app.stage.addChild(error_mes2);
 
@@ -1008,8 +1010,6 @@ import { Input } from "@pixi/ui";
     { alias: "arena2", src: "assets/arena2.png" },
     { alias: "arena1", src: "assets/arena1.png" },
   ]);
-
-  showText({ text: "version A.3", steady: true, height: 5 });
 
   document.getElementById("form_sheet_helper").style.display = "block";
 
