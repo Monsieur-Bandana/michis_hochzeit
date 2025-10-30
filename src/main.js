@@ -734,17 +734,18 @@ import { Input } from "@pixi/ui";
     }
   }
   await wait(500);
-
+  /*
   await createMichi();
   // Begrüsung
 
   await generateTextSequence(introText1);
   createLives();
   await generateTextSequence(introText2);
-
+*/
   async function sendMail({ paypa_yes }) {
     // mail code here
 
+    app.stage.interactiveChildren = false;
     const connection_text = createGenericText(
       "Verbinde mit Server...",
       app.screen.width / 4,
@@ -779,6 +780,7 @@ import { Input } from "@pixi/ui";
         if (res_data.ok) {
           resolve();
         } else {
+          app.stage.interactiveChildren = true;
           const error_mes = new Sprite(Assets.get("error_mes"));
           error_mes.anchor.set(0.5);
           error_mes.scale.set(0.8);
@@ -793,6 +795,7 @@ import { Input } from "@pixi/ui";
           });
         }
       } catch (error) {
+        app.stage.interactiveChildren = true;
         const error_mes2 = new Sprite(Assets.get("error_mes2"));
         error_mes2.anchor.set(0.5);
         error_mes2.scale.set(0.2);
@@ -818,7 +821,7 @@ import { Input } from "@pixi/ui";
     ];
     generateTextSequence(goodbySequence);
   }
-
+  /*
   async function restartGame() {
     updateLives();
     // Bereit Button
@@ -963,7 +966,7 @@ import { Input } from "@pixi/ui";
   });
 
   await removeEveryItemFromScreen({});
-
+*/
   function createInputField(flag, val) {
     const inp = new Sprite(Assets.get("input"));
     inp.scale.set(0.15);
@@ -981,7 +984,6 @@ import { Input } from "@pixi/ui";
 
     inputF.onChange.connect((text) => {
       michael_data[val] = text;
-      console.log(val, text);
     });
 
     return inputF;
