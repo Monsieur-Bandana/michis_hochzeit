@@ -123,6 +123,12 @@ import { Input } from "@pixi/ui";
   };
 
   // Setup der Fragestellungen
+  const geigenfrage0 = {
+    question: "Was ist das bessere\nInstrument?",
+    optionCorrect: "Bratsche",
+    option2: "Geige",
+    option3: "Beides ist schön!",
+  };
   const geigenfrage1 = {
     question: "Wer ist der beste Komponist?",
     optionCorrect: "Dvorak",
@@ -851,7 +857,7 @@ import { Input } from "@pixi/ui";
       enemy_str: "geiger",
       title: "Geigenunterricht",
       introwords: ["Hehehehehehe", "hehehe", "hehe", "he"],
-      question_map_list: [geigenfrage1],
+      question_map_list: [geigenfrage0, geigenfrage1],
       enemy_scale: 0.16,
     });
     await executeFight({
