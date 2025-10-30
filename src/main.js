@@ -995,50 +995,28 @@ import { Input } from "@pixi/ui";
     { alias: "arena2", src: "assets/arena2.png" },
     { alias: "arena1", src: "assets/arena1.png" },
   ]);
-  function createInputField(flag, val) {
-    const inp = new Sprite(Assets.get("input"));
-    inp.scale.set(0.3);
-    inp.anchor.set(0.1, 0);
-    var inputF = new Input({
-      bg: inp,
-      padding: [0, 0, 0, 0],
-      placeholder: flag,
-      textStyle: { fontSize: 15 },
-      addMask: false,
-
-      // alternatively you can use [11, 11, 11, 11] or [11, 11] or just 11
-    });
-    inputF.x = app.screen.width / 5;
-    const apply = (text) => {
-      michael_data[val] = text;
-      // möglichst wenig Arbeit hier drin
-      // console.log knapp halten:
-      console.log("name:", michael_data[val]);
-    };
-
-    // ✅ Signal gibt dir den aktuellen Text
-    inputF.onChange.connect((text) => apply(text));
-
-    return inputF;
-  }
 
   showText({ text: "version A.3", steady: true, height: 5 });
 
-  const input1 = createInputField("Name deines Nutzeraccounts", "michis_name");
+  document.getElementById("form_sheet_helper").style.display = "block";
 
-  document.getElementById("fname").addEventListener("input", (t) => {
+  document.getElementById("account_name").addEventListener("input", (t) => {
+    michael_data["michis_name"] = t.target.value;
+  });
+
+  document.getElementById("paypal_mail").addEventListener("input", (t) => {
+    michael_data["michis_mail"] = t.target.value;
+  });
+
+  document.getElementById("sec_answer").addEventListener("input", (t) => {
     michael_data["sicherheits_antwort"] = t.target.value;
   });
 
-  const input2 = createInputField(
-    "E-Mail deines Nutzeraccounts",
-    "michis_mail"
-  );
+  const line1 = createGenericText("", app.screen.width / 2);
 
-  const line3 = createGenericText(
-    "Sicherheitsfrage:\nWie hieß dein letzer\nMitbewohner in Würzburg\nmit Vornamen?",
-    app.screen.width / 2
-  );
+  const line2 = createGenericText("", app.screen.width / 2);
+
+  const line3 = createGenericText("", app.screen.width / 2);
 
   const paypal = new Sprite(Assets.get("paypal"));
   paypal.anchor.set(0.5);
@@ -1070,7 +1048,7 @@ import { Input } from "@pixi/ui";
     }
   }
 
-  const listOfSprits = [input1, input2, line3, paypal, shock];
+  const listOfSprits = [line1, line2, line3, paypal, shock];
   createForm(listOfSprits);
   shock.on("pointerdown", () => {
     sendMail({

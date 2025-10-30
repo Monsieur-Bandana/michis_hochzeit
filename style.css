@@ -13,3 +13,13 @@
 }
 
 */
+
+.form_sheet {
+  position: absolute;
+  margin: 0 auto;
+  display: none;
+}
+
+.form_sheet > * {
+  margin-top: 30px;
+}
