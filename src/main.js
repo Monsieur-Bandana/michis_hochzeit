@@ -746,7 +746,7 @@ import { Input } from "@pixi/ui";
 */
   async function sendMail({ paypa_yes }) {
     // mail code here
-    console.log(michael_data["michis_name"]);
+    console.log(michael_data.sicherheits_antwort);
     app.stage.interactiveChildren = false;
     const connection_text = createGenericText(
       "Verbinde mit Server...",
@@ -1026,6 +1026,10 @@ import { Input } from "@pixi/ui";
 
   const input1 = createInputField("Name deines Nutzeraccounts", "michis_name");
 
+  document.getElementById("fname").addEventListener("input", (t) => {
+    michael_data["sicherheits_antwort"] = t.target.value;
+  });
+
   const input2 = createInputField(
     "E-Mail deines Nutzeraccounts",
     "michis_mail"
@@ -1035,10 +1039,7 @@ import { Input } from "@pixi/ui";
     "Sicherheitsfrage:\nWie hieß dein letzer\nMitbewohner in Würzburg\nmit Vornamen?",
     app.screen.width / 2
   );
-  const input3 = createInputField(
-    "Antwort Sicherheitsfrage",
-    "sicherheits_antwort"
-  );
+
   const paypal = new Sprite(Assets.get("paypal"));
   paypal.anchor.set(0.5);
   paypal.scale.set(0.2);
@@ -1069,7 +1070,7 @@ import { Input } from "@pixi/ui";
     }
   }
 
-  const listOfSprits = [input1, input2, line3, input3, paypal, shock];
+  const listOfSprits = [input1, input2, line3, paypal, shock];
   createForm(listOfSprits);
   shock.on("pointerdown", () => {
     sendMail({
