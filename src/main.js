@@ -122,6 +122,8 @@ import { Input } from "@pixi/ui";
     sicherheits_antwort: "",
   };
 
+  var form_helper = document.getElementById("form_sheet_helper");
+
   // Setup der Fragestellungen
   const geigenfrage0 = {
     question: "Was ist das bessere\nInstrument?",
@@ -748,6 +750,27 @@ import { Input } from "@pixi/ui";
     }
   }
 
+  function errorMessageHandler(fileN, scale, connection_text) {
+    app.stage.interactiveChildren = true;
+    const error_mes2 = new Sprite(Assets.get(fileN));
+
+    form_helper.style.display = "none";
+    error_mes2.anchor.set(0.5);
+    error_mes2.scale.set(scale);
+    error_mes2.y = app.screen.height / 2;
+    error_mes2.x = app.screen.width / 2;
+    error_mes2.zIndex = 100;
+    error_mes2.eventMode = "static";
+    app.stage.addChild(error_mes2);
+
+    error_mes2.on("pointerdown", () => {
+      app.stage.removeChild(error_mes2);
+      app.stage.removeChild(connection_text);
+
+      form_helper.style.display = "block";
+    });
+  }
+
   async function sendMail({ paypa_yes }) {
     // mail code here
     console.log(michael_data.sicherheits_antwort);
@@ -755,7 +778,7 @@ import { Input } from "@pixi/ui";
     const connection_text = createGenericText(
       "Verbinde mit Server...",
       app.screen.width / 4,
-      app.screen.height / 12,
+      app.screen.height - 50,
       false
     );
     await new Promise(async (resolve) => {
@@ -786,36 +809,10 @@ import { Input } from "@pixi/ui";
         if (res_data.ok) {
           resolve();
         } else {
-          app.stage.interactiveChildren = true;
-          const error_mes = new Sprite(Assets.get("error_mes"));
-          error_mes.anchor.set(0.5);
-          error_mes.scale.set(0.8);
-          error_mes.y = app.screen.height / 2;
-          error_mes.x = app.screen.width / 2;
-          error_mes.zIndex = 100;
-          error_mes.eventMode = "static";
-          app.stage.addChild(error_mes);
-
-          error_mes.on("pointerdown", () => {
-            app.stage.removeChild(error_mes);
-            app.stage.removeChild(connection_text);
-          });
+          errorMessageHandler("error_mes", 0.8, connection_text);
         }
       } catch (error) {
-        app.stage.interactiveChildren = true;
-        const error_mes2 = new Sprite(Assets.get("error_mes2"));
-        error_mes2.anchor.set(0.5);
-        error_mes2.scale.set(0.2);
-        error_mes2.y = app.screen.height / 2;
-        error_mes2.x = app.screen.width / 2;
-        error_mes2.zIndex = 100;
-        error_mes2.eventMode = "static";
-        app.stage.addChild(error_mes2);
-
-        error_mes2.on("pointerdown", () => {
-          app.stage.removeChild(error_mes2);
-          app.stage.removeChild(connection_text);
-        });
+        errorMessageHandler("error_mes2", 0.15, connection_text);
       }
     });
 
@@ -830,7 +827,7 @@ import { Input } from "@pixi/ui";
     ];
     generateTextSequence(goodbySequence);
   }
-
+  /*
   await wait(500);
 
   await createMichi();
@@ -981,7 +978,7 @@ import { Input } from "@pixi/ui";
       resolve();
     });
   });
-
+*/
   await removeEveryItemFromScreen({});
 
   Assets.unload([
@@ -1011,7 +1008,7 @@ import { Input } from "@pixi/ui";
     { alias: "arena1", src: "assets/arena1.png" },
   ]);
 
-  document.getElementById("form_sheet_helper").style.display = "block";
+  form_helper.style.display = "block";
 
   document.getElementById("account_name").addEventListener("input", (t) => {
     michael_data["michis_name"] = t.target.value;
@@ -1026,10 +1023,6 @@ import { Input } from "@pixi/ui";
   });
 
   const line1 = createGenericText("", app.screen.width / 2);
-
-  const line2 = createGenericText("", app.screen.width / 2);
-
-  const line3 = createGenericText("", app.screen.width / 2);
 
   const paypal = new Sprite(Assets.get("paypal"));
   paypal.anchor.set(0.5);
@@ -1050,18 +1043,17 @@ import { Input } from "@pixi/ui";
   shock.x = app.screen.width / 2;
 
   function createForm(listOfSprites) {
-    const area = app.screen.height - 200;
-    const padding = area / listOfSprites.length;
+    let padding = 50;
     var h = 0;
     for (const el of listOfSprites) {
       //el.x = app.screen.width / 2;
-      el.y = app.screen.height - app.screen.height + 100 + h * padding;
+      el.y = app.screen.height - 100 - h * padding;
       h++;
       app.stage.addChild(el);
     }
   }
 
-  const listOfSprits = [line1, line2, line3, paypal, shock];
+  const listOfSprits = [shock, line1, paypal];
   createForm(listOfSprits);
   shock.on("pointerdown", () => {
     sendMail({
