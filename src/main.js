@@ -827,7 +827,7 @@ import { Input } from "@pixi/ui";
 
   await wait(500);
   // Ab hier auskomentieren
-  /*
+
   await createMichi();
   // Begrüsung
   await generateTextSequence(introText1);
@@ -976,7 +976,7 @@ import { Input } from "@pixi/ui";
       resolve();
     });
   });
-*/
+
   // bis hier auskomentieren
   await removeEveryItemFromScreen({});
 
