@@ -54,14 +54,15 @@ import { Input } from "@pixi/ui";
     x_axis,
     y_axis,
     slideInAnimation = true,
-    dest = "set"
+    dest = "set",
+    color = "black"
   ) {
     const text1 = new Text({
       text,
       style: {
         fontFamily: "Pixelletters",
         fontSize: 10,
-        fill: "black",
+        fill: color,
         resolution: 2,
       },
     });
@@ -750,10 +751,9 @@ import { Input } from "@pixi/ui";
     }
   }
 
-  function errorMessageHandler(fileN, scale, connection_text) {
+  function errorMessageHandler(fileN, scale) {
     app.stage.interactiveChildren = true;
     const error_mes2 = new Sprite(Assets.get(fileN));
-
     form_helper.style.display = "none";
     error_mes2.anchor.set(0.5);
     error_mes2.scale.set(scale);
@@ -765,6 +765,7 @@ import { Input } from "@pixi/ui";
     app.stage.removeChild(shock);
     app.stage.removeChild(paypal);
     error_mes2.on("pointerdown", () => {
+      connection_text.style.fill = "white";
       app.stage.removeChild(error_mes2);
       app.stage.removeChild(connection_text);
       app.stage.addChild(shock);
@@ -777,12 +778,7 @@ import { Input } from "@pixi/ui";
     // mail code here
     console.log(michael_data.sicherheits_antwort);
     app.stage.interactiveChildren = false;
-    const connection_text = createGenericText(
-      "Verbinde mit Server...",
-      app.screen.width / 4,
-      app.screen.height - 50,
-      false
-    );
+    connection_text.style.fill = "black";
     await new Promise(async (resolve) => {
       try {
         const res = await fetch(
@@ -811,10 +807,10 @@ import { Input } from "@pixi/ui";
         if (res_data.ok) {
           resolve();
         } else {
-          errorMessageHandler("error_mes", 0.8, connection_text);
+          errorMessageHandler("error_mes", 0.8);
         }
       } catch (error) {
-        errorMessageHandler("error_mes2", 0.15, connection_text);
+        errorMessageHandler("error_mes2", 0.15);
       }
     });
 
@@ -1026,7 +1022,14 @@ import { Input } from "@pixi/ui";
     michael_data["sicherheits_antwort"] = t.target.value;
   });
 
-  const line1 = createGenericText("", app.screen.width / 2);
+  const connection_text = createGenericText(
+    "Verbinde mit Server...",
+    app.screen.width / 4,
+    app.screen.height / 2,
+    false,
+    "set",
+    "white"
+  );
 
   const paypal = new Sprite(Assets.get("paypal"));
   paypal.anchor.set(0.5);
@@ -1057,7 +1060,7 @@ import { Input } from "@pixi/ui";
     }
   }
 
-  const listOfSprits = [shock, line1, paypal];
+  const listOfSprits = [shock, connection_text, paypal];
   createForm(listOfSprits);
   shock.on("pointerdown", () => {
     sendMail({
