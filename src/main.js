@@ -762,11 +762,13 @@ import { Input } from "@pixi/ui";
     error_mes2.zIndex = 100;
     error_mes2.eventMode = "static";
     app.stage.addChild(error_mes2);
-
+    app.stage.removeChild(shock);
+    app.stage.removeChild(paypal);
     error_mes2.on("pointerdown", () => {
       app.stage.removeChild(error_mes2);
       app.stage.removeChild(connection_text);
-
+      app.stage.addChild(shock);
+      app.stage.addChild(paypal);
       form_helper.style.display = "block";
     });
   }
@@ -827,9 +829,10 @@ import { Input } from "@pixi/ui";
     ];
     generateTextSequence(goodbySequence);
   }
-  /*
-  await wait(500);
 
+  await wait(500);
+  // Ab hier auskomentieren
+  /*
   await createMichi();
   // Begrüsung
   await generateTextSequence(introText1);
@@ -979,6 +982,7 @@ import { Input } from "@pixi/ui";
     });
   });
 */
+  // bis hier auskomentieren
   await removeEveryItemFromScreen({});
 
   Assets.unload([
