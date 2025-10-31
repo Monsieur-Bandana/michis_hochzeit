@@ -767,7 +767,6 @@ import { Input } from "@pixi/ui";
     error_mes2.on("pointerdown", () => {
       connection_text.style.fill = "white";
       app.stage.removeChild(error_mes2);
-      app.stage.removeChild(connection_text);
       app.stage.addChild(shock);
       app.stage.addChild(paypal);
       form_helper.style.display = "block";
