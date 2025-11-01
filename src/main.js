@@ -109,8 +109,6 @@ import { Input } from "@pixi/ui";
   const left = "left";
   var numberOfLifes = 3;
   var cur_challenge = 1;
-  var currentAnswerStatus = false;
-  var curr_michi;
   var curr_enemy;
   var curr_sb;
   var curr_q;
@@ -151,7 +149,7 @@ import { Input } from "@pixi/ui";
     option3: "Die Vogelhochzeit",
   };
   const bachelorfrage1 = {
-    question: "An welchem Ort\nlernt es sich am besten?",
+    question: "Wo lernt man am meisten\nüber Wirtschaft?",
     optionCorrect: "Biertümpel",
     option2: "Zentralbibliothek",
     option3: "Audimax",
@@ -236,15 +234,16 @@ import { Input } from "@pixi/ui";
   }
 
   // Michi
+  const michi = new Sprite(Assets.get("michi"));
+  michi.label = "michi";
+  michi.anchor.set(0.5);
+  michi.scale.set(0.8);
+  michi.y = app.screen.height - app.screen.height / 4;
+  michi.x = app.screen.width - app.screen.width * 0.99;
+
   async function createMichi() {
-    const michi = new Sprite(Assets.get("michi"));
-    michi.label = "michi";
-    michi.anchor.set(0.5);
-    michi.scale.set(0.8);
-    michi.y = app.screen.height - app.screen.height / 4;
-    michi.x = app.screen.width - app.screen.width * 0.99;
+    michi.zIndex = 100;
     app.stage.addChild(michi);
-    curr_michi = michi;
     await slideIn(michi, "left");
   }
 
@@ -440,6 +439,7 @@ import { Input } from "@pixi/ui";
   async function restartfunction() {
     // Bereit Button
     const thanos = new Sprite(Assets.get("thanos"));
+    michi.zIndex = 0;
     thanos.anchor.set(0.5);
     thanos.scale.set(0.2);
     thanos.y = app.screen.height / 2;
@@ -591,7 +591,7 @@ import { Input } from "@pixi/ui";
     steady = false,
     height = 3,
     color = "black",
-    time_frame = 1500,
+    time_frame = 1500, //1500
     font = "Pixelletters",
     fontSize = 10,
   }) {
