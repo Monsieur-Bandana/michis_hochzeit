@@ -57,6 +57,7 @@ import { Input } from "@pixi/ui";
         fontSize: 10,
         fill: color,
         resolution: 2,
+        align: "center",
       },
     });
     text1.anchor.set(0.5);
@@ -643,6 +644,7 @@ import { Input } from "@pixi/ui";
           fontSize: fontSize,
           fill: color,
           resolution: 2,
+          align: "center",
         },
       });
       text1.anchor.set(0.5);
@@ -864,7 +866,7 @@ import { Input } from "@pixi/ui";
     ];
     generateTextSequence(goodbySequence);
   }
-
+  await showText({ text: "🔊\nSound on!", fontSize: 15 });
   await wait(500);
   // Ab hier auskomentieren
 
