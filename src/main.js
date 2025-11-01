@@ -645,7 +645,7 @@ import { Input } from "@pixi/ui";
     steady = false,
     height = 3,
     color = "black",
-    time_frame = 150, //1500
+    time_frame = 1500, //1500
     font = "Pixelletters",
     fontSize = 10,
   }) {
@@ -924,7 +924,6 @@ import { Input } from "@pixi/ui";
       { alias: "magneto", src: "assets/magneto.mp3" },
       { alias: "romeo", src: "assets/romeo.mp3" },
       { alias: "adagio", src: "assets/adagio.mp3" },
-      { alias: "victory", src: "assets/victory.mp3" },
       { alias: "michi", src: "assets/michi.png" },
       //  { alias: "font", src: "fonts/ArcadeClassic.ttf" },
       { alias: "font", src: "fonts/Pixelletters.ttf" },
