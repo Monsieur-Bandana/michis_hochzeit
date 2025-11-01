@@ -49,6 +49,19 @@ import { Input } from "@pixi/ui";
 
   app.ticker.maxFPS = 24;
 
+  document.getElementById("account_name").addEventListener("input", (t) => {
+    michael_data["michis_name"] = t.target.value;
+  });
+
+  document.getElementById("paypal_mail").addEventListener("input", (t) => {
+    michael_data["michis_mail"] = t.target.value;
+  });
+
+  document.getElementById("sec_answer").addEventListener("input", (t) => {
+    michael_data["sicherheits_antwort"] = t.target.value;
+    console.log(michael_data["sicherheits_antwort"]);
+  });
+
   function createGenericInnerText(text, color) {
     const text1 = new Text({
       text,
@@ -1062,16 +1075,4 @@ import { Input } from "@pixi/ui";
   }
 
   await restartGame();
-
-  document.getElementById("account_name").addEventListener("input", (t) => {
-    michael_data["michis_name"] = t.target.value;
-  });
-
-  document.getElementById("paypal_mail").addEventListener("input", (t) => {
-    michael_data["michis_mail"] = t.target.value;
-  });
-
-  document.getElementById("sec_answer").addEventListener("input", (t) => {
-    michael_data["sicherheits_antwort"] = t.target.value;
-  });
 })();
