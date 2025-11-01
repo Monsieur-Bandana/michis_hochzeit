@@ -49,14 +49,7 @@ import { Input } from "@pixi/ui";
 
   app.ticker.maxFPS = 24;
 
-  function createGenericText(
-    text,
-    x_axis,
-    y_axis,
-    slideInAnimation = true,
-    dest = "set",
-    color = "black"
-  ) {
+  function createGenericInnerText(text, color) {
     const text1 = new Text({
       text,
       style: {
@@ -68,8 +61,20 @@ import { Input } from "@pixi/ui";
     });
     text1.anchor.set(0.5);
     text1.scale.set(2);
-    text1.y = y_axis;
+    return text1;
+  }
 
+  function createGenericText(
+    text,
+    x_axis,
+    y_axis,
+    slideInAnimation = true,
+    dest = "set",
+    color = "black"
+  ) {
+    const text1 = createGenericInnerText(text, color);
+
+    text1.y = y_axis;
     text1.x = slideInAnimation ? app.screen.width + 60 : app.screen.width / 2;
 
     text1.eventMode = "static";
@@ -82,6 +87,13 @@ import { Input } from "@pixi/ui";
     }
     return text1;
   }
+
+  const connection_text = createGenericInnerText(
+    "Verbinde mit Server...",
+    "white",
+    app.screen.height / 2,
+    app.screen.width / 4
+  );
 
   // 1) einmal erstellen & anzeigen
   let loadText = createGenericText(
@@ -164,7 +176,7 @@ import { Input } from "@pixi/ui";
     question: "Was passierte während\ndeiner Thesis?",
     optionCorrect: "Ironman stirbt",
     option2: "Logan stirbt",
-    option3: "Die Queen stirbt",
+    option3: "Dumbledore stirbt",
   };
   const fabrikfrage1 = {
     question: "Wer hat die besten Tüten?",
@@ -586,12 +598,40 @@ import { Input } from "@pixi/ui";
     await waitForAnswer(text10, text20, text30, stay_in_arena);
   }
 
+  const paypal = new Sprite(Assets.get("paypal"));
+  paypal.anchor.set(0.5);
+  paypal.scale.set(0.2);
+  paypal.eventMode = "static";
+
+  paypal.on("pointerdown", () => {
+    sendMail({
+      paypa_yes: "True",
+    });
+  });
+
+  const shock = new Sprite(Assets.get("shock"));
+  shock.anchor.set(0.5);
+  shock.scale.set(0.18);
+  shock.eventMode = "static";
+
+  function createForm(listOfSprites) {
+    let padding = 50;
+    var h = 0;
+    for (const el of listOfSprites) {
+      //el.x = app.screen.width / 2;
+      el.y = app.screen.height - 100 - h * padding;
+      el.x = app.screen.width / 2;
+      h++;
+      app.stage.addChild(el);
+    }
+  }
+
   function showText({
     text,
     steady = false,
     height = 3,
     color = "black",
-    time_frame = 1500, //1500
+    time_frame = 150, //1500
     font = "Pixelletters",
     fontSize = 10,
   }) {
@@ -834,6 +874,74 @@ import { Input } from "@pixi/ui";
   createLives();
   await generateTextSequence(introText2);
 
+  async function winAllFunction() {
+    sound.play("background5", { loop: true, volume: 0.5 });
+
+    // addBackground("arena4");
+    const outrTexts = [
+      "Herzlichen Glückwunsch",
+      "Du hast alle\nHerausforderungen\nmit Bravur gemeistert!",
+      "Hier deine Belohnung",
+    ];
+    await generateTextSequence(outrTexts);
+
+    await showText({ text: "(Bitte anklicken)", steady: true });
+
+    const schatz = new Sprite(Assets.get("schatz"));
+    schatz.anchor.set(0.5);
+    schatz.scale.set(0.8);
+    schatz.y = app.screen.height / 2;
+    schatz.x = app.screen.width / 2;
+    app.stage.addChild(schatz);
+    schatz.eventMode = "static";
+
+    await new Promise((resolve) => {
+      schatz.on("pointerdown", () => {
+        resolve();
+      });
+    });
+
+    // bis hier auskomentieren
+    await removeEveryItemFromScreen({});
+
+    Assets.unload([
+      { alias: "soundtrack", src: "assets/soundtrack.mp3" },
+      { alias: "magneto", src: "assets/magneto.mp3" },
+      { alias: "romeo", src: "assets/romeo.mp3" },
+      { alias: "adagio", src: "assets/adagio.mp3" },
+      { alias: "victory", src: "assets/victory.mp3" },
+      { alias: "michi", src: "assets/michi.png" },
+      //  { alias: "font", src: "fonts/ArcadeClassic.ttf" },
+      { alias: "font", src: "fonts/Pixelletters.ttf" },
+      { alias: "font", src: "fonts/GloriousFree.ttf" },
+      { alias: "bereit", src: "assets/bereit.png" },
+      { alias: "herz", src: "assets/herz.png" },
+      { alias: "geiger", src: "assets/geiger.png" },
+      { alias: "deutscher", src: "assets/deutscher.png" },
+      { alias: "bubble", src: "assets/speechbubble.png" },
+      { alias: "bachelor", src: "assets/bachelor.png" },
+      { alias: "weiter", src: "assets/Weiter.png" },
+      { alias: "fabrik", src: "assets/fabrik.png" },
+      { alias: "schatz", src: "assets/schatz.png" },
+      { alias: "thanos", src: "assets/thanos.png" },
+      { alias: "bowser", src: "assets/bowser.mp3" },
+      { alias: "markus", src: "assets/markus_rotated.png" },
+      { alias: "arena3", src: "assets/arena3.png" },
+      { alias: "arena2", src: "assets/arena2.png" },
+      { alias: "arena1", src: "assets/arena1.png" },
+    ]);
+
+    form_helper.style.display = "block";
+
+    const listOfSprits = [shock, connection_text, paypal];
+    createForm(listOfSprits);
+    shock.on("pointerdown", () => {
+      sendMail({
+        paypa_yes: "False",
+      });
+    });
+  }
+
   async function restartGame() {
     updateLives();
     // Bereit Button
@@ -873,7 +981,7 @@ import { Input } from "@pixi/ui";
       arena: "arena2",
     });
 
-    sound.stop("background");
+    sound.stopAll();
     sound.play("background2", { loop: true, volume: 0.2 });
     await executeFight({
       enemy_str: "bachelor",
@@ -884,7 +992,7 @@ import { Input } from "@pixi/ui";
       enemy_Height: 3,
       enemy_scale: 0.12,
     });
-    sound.stop("background2");
+    sound.stopAll();
     sound.play("background4");
 
     const markusTexts = [
@@ -934,80 +1042,24 @@ import { Input } from "@pixi/ui";
     await slideOut(sp_b);
     await slideOut(markus);
 
-    sound.stop("background4");
+    sound.stopAll();
 
     sound.play("background3", { loop: true, volume: 0.8 });
     await executeFight({
       enemy_str: "fabrik",
       title: "Fabrikleitung",
-      question_map_list: [fabrikfrage2, fabrikfrage1, fabrikfrage3],
+      question_map_list: [fabrikfrage2, fabrikfrage3],
       enemy_position: 3,
       enemy_scale: 0.25,
       enemy_Height: 3,
     });
 
-    sound.stop("background3");
+    sound.stopAll();
+
+    await winAllFunction();
   }
 
   await restartGame();
-
-  sound.play("background5", { loop: true, volume: 0.5 });
-
-  // addBackground("arena4");
-  const outrTexts = [
-    "Herzlichen Glückwunsch",
-    "Du hast alle\nHerausforderungen\nmit Bravur gemeistert!",
-    "Hier deine Belohnung",
-  ];
-  await generateTextSequence(outrTexts);
-
-  await showText({ text: "(Bitte anklicken)", steady: true });
-
-  const schatz = new Sprite(Assets.get("schatz"));
-  schatz.anchor.set(0.5);
-  schatz.scale.set(0.8);
-  schatz.y = app.screen.height / 2;
-  schatz.x = app.screen.width / 2;
-  app.stage.addChild(schatz);
-  schatz.eventMode = "static";
-
-  await new Promise((resolve) => {
-    schatz.on("pointerdown", () => {
-      resolve();
-    });
-  });
-
-  // bis hier auskomentieren
-  await removeEveryItemFromScreen({});
-
-  Assets.unload([
-    { alias: "soundtrack", src: "assets/soundtrack.mp3" },
-    { alias: "magneto", src: "assets/magneto.mp3" },
-    { alias: "romeo", src: "assets/romeo.mp3" },
-    { alias: "adagio", src: "assets/adagio.mp3" },
-    { alias: "victory", src: "assets/victory.mp3" },
-    { alias: "michi", src: "assets/michi.png" },
-    //  { alias: "font", src: "fonts/ArcadeClassic.ttf" },
-    { alias: "font", src: "fonts/Pixelletters.ttf" },
-    { alias: "font", src: "fonts/GloriousFree.ttf" },
-    { alias: "bereit", src: "assets/bereit.png" },
-    { alias: "herz", src: "assets/herz.png" },
-    { alias: "geiger", src: "assets/geiger.png" },
-    { alias: "deutscher", src: "assets/deutscher.png" },
-    { alias: "bubble", src: "assets/speechbubble.png" },
-    { alias: "bachelor", src: "assets/bachelor.png" },
-    { alias: "weiter", src: "assets/Weiter.png" },
-    { alias: "fabrik", src: "assets/fabrik.png" },
-    { alias: "schatz", src: "assets/schatz.png" },
-    { alias: "thanos", src: "assets/thanos.png" },
-    { alias: "bowser", src: "assets/bowser.mp3" },
-    { alias: "markus", src: "assets/markus_rotated.png" },
-    { alias: "arena3", src: "assets/arena3.png" },
-    { alias: "arena2", src: "assets/arena2.png" },
-    { alias: "arena1", src: "assets/arena1.png" },
-  ]);
-
-  form_helper.style.display = "block";
 
   document.getElementById("account_name").addEventListener("input", (t) => {
     michael_data["michis_name"] = t.target.value;
@@ -1019,51 +1071,5 @@ import { Input } from "@pixi/ui";
 
   document.getElementById("sec_answer").addEventListener("input", (t) => {
     michael_data["sicherheits_antwort"] = t.target.value;
-  });
-
-  const connection_text = createGenericText(
-    "Verbinde mit Server...",
-    app.screen.width / 4,
-    app.screen.height / 2,
-    false,
-    "set",
-    "white"
-  );
-
-  const paypal = new Sprite(Assets.get("paypal"));
-  paypal.anchor.set(0.5);
-  paypal.scale.set(0.2);
-  paypal.eventMode = "static";
-
-  paypal.x = app.screen.width / 2;
-  paypal.on("pointerdown", () => {
-    sendMail({
-      paypa_yes: "True",
-    });
-  });
-
-  const shock = new Sprite(Assets.get("shock"));
-  shock.anchor.set(0.5);
-  shock.scale.set(0.18);
-  shock.eventMode = "static";
-  shock.x = app.screen.width / 2;
-
-  function createForm(listOfSprites) {
-    let padding = 50;
-    var h = 0;
-    for (const el of listOfSprites) {
-      //el.x = app.screen.width / 2;
-      el.y = app.screen.height - 100 - h * padding;
-      h++;
-      app.stage.addChild(el);
-    }
-  }
-
-  const listOfSprits = [shock, connection_text, paypal];
-  createForm(listOfSprits);
-  shock.on("pointerdown", () => {
-    sendMail({
-      paypa_yes: "False",
-    });
   });
 })();
