@@ -62,7 +62,7 @@ import { Input } from "@pixi/ui";
     console.log(michael_data["sicherheits_antwort"]);
   });
 
-  function createGenericInnerText(text, color) {
+  function createGenericInnerText(text, color, align = "center") {
     const text1 = new Text({
       text,
       style: {
@@ -70,7 +70,7 @@ import { Input } from "@pixi/ui";
         fontSize: 10,
         fill: color,
         resolution: 2,
-        align: "center",
+        align: align,
       },
     });
     text1.anchor.set(0.5);
@@ -84,9 +84,10 @@ import { Input } from "@pixi/ui";
     y_axis,
     slideInAnimation = true,
     dest = "set",
-    color = "black"
+    color = "black",
+    align = "center"
   ) {
-    const text1 = createGenericInnerText(text, color);
+    const text1 = createGenericInnerText(text, color, align);
 
     text1.y = y_axis;
     text1.x = slideInAnimation ? app.screen.width + 60 : app.screen.width / 2;
@@ -341,14 +342,22 @@ import { Input } from "@pixi/ui";
   }
 
   // generiert die Antwortmöglichkeiten
-  function createText(text, h, slideInAnimation = true) {
+  function createText(text, h, slideInAnimation = true, char_length) {
     const y = app.screen.height - app.screen.height / 3 + h;
 
     const x = slideInAnimation
-      ? app.screen.width - app.screen.width / 4
+      ? app.screen.width - char_length - 50
       : app.screen.width / 2;
 
-    const text1 = createGenericText(text, x, y, slideInAnimation);
+    const text1 = createGenericText(
+      text,
+      x,
+      y,
+      slideInAnimation,
+      "set",
+      "black",
+      "left"
+    );
     return text1;
   }
 
@@ -594,17 +603,28 @@ import { Input } from "@pixi/ui";
       const j = Math.floor(Math.random() * (i + 1));
       [heights[i], heights[j]] = [heights[j], heights[i]];
     }
+    var strings = [answerCorrect, answerWrong1, answerWrong2];
+    strings = strings.flatMap((str) => str.split("\n"));
+    var dist_padding = Math.max(...strings.map((s) => s.length));
+    dist_padding *= 4;
+
     const text10 = createText(
       `${heights[0].prefix}: ${answerCorrect}`,
-      heights[0].h
+      heights[0].h,
+      true,
+      dist_padding
     );
     const text20 = createText(
       `${heights[1].prefix}: ${answerWrong1}`,
-      heights[1].h
+      heights[1].h,
+      true,
+      dist_padding
     );
     const text30 = createText(
       `${heights[2].prefix}: ${answerWrong2}`,
-      heights[2].h
+      heights[2].h,
+      true,
+      dist_padding
     );
     curr_o1 = text10;
     curr_o2 = text20;
@@ -645,7 +665,7 @@ import { Input } from "@pixi/ui";
     steady = false,
     height = 3,
     color = "black",
-    time_frame = 1500, //1500
+    time_frame = 2200, //1500
     font = "Pixelletters",
     fontSize = 10,
   }) {
@@ -781,7 +801,7 @@ import { Input } from "@pixi/ui";
     "Auf deinem bisherigen\nWeg durchs Leben ...",
     "... hast du schon viele\nPrüfungen gemeistert.",
     "Heute musst du dich noch\neinmal...",
-    "... vier deiner erbittersten\nGegener stellen.",
+    "... vier deiner erbittersten\nGegner stellen.",
     "Am Ende wartet\nein Preis auf dich",
     "Zu Beginn des Spiels",
   ];
