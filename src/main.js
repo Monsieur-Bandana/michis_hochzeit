@@ -732,11 +732,11 @@ import { Input } from "@pixi/ui";
     var counter = 1;
     var stay_in_arena = true;
     await slideIn(sp_b, "right", 2);
+    for (const el2 of introwords) {
+      await showText({ text: el2, height: 1.95 });
+    }
     for (const el of question_map_list) {
       console.log(el);
-      for (const el2 of introwords) {
-        await showText({ text: el2, height: 1.95 });
-      }
       curr_q = createGenericText(
         el.question,
         app.screen.width / 2,
@@ -981,7 +981,7 @@ import { Input } from "@pixi/ui";
     await executeFight({
       enemy_str: "geiger",
       title: "Geigenunterricht",
-      introwords: ["Hehehehehehe", "hehehe", "hehe", "he"],
+      introwords: ["Hehehehehehe", "hehehe", "", "hehe", "", "he"],
       question_map_list: [geigenfrage0, geigenfrage1],
       enemy_scale: 0.16,
     });
